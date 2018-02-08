@@ -1,4 +1,4 @@
-# SAML Service Provider for Craft CMS
+# SAML IDP for Craft CMS
 [![Join the chat at https://gitter.im/flipboxfactory/saml-idp](https://badges.gitter.im/flipboxfactory/saml-idp.svg)](https://gitter.im/flipboxfactory/saml-idp?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Latest Version](https://img.shields.io/github/release/flipboxfactory/saml-idp.svg?style=flat-square)](https://github.com/flipboxfactory/saml-idp/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
