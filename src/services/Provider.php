@@ -11,44 +11,50 @@ namespace flipbox\saml\idp\services;
 
 use craft\base\Component;
 use flipbox\ember\models\Model;
-use flipbox\ember\services\traits\AccessorByIdOrString;
+use flipbox\ember\services\traits\AccessorById;
 use flipbox\ember\services\traits\ModelDelete;
 use flipbox\ember\services\traits\ModelSave;
 use flipbox\saml\core\helpers\SerializeHelper;
+use flipbox\saml\core\services\messages\ProviderServiceInterface;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\models\Provider as ProviderModel;
 use LightSaml\Model\Assertion\Issuer;
 use yii\db\ActiveRecord;
 
 
-class Provider extends Component
+/**
+ * Class Provider
+ * @package flipbox\saml\idp\services
+ */
+class Provider extends Component implements ProviderServiceInterface
 {
 
-    use AccessorByIdOrString, ModelSave, ModelDelete;
+    use AccessorById, ModelSave, ModelDelete;
 
-    const HANDLE = 'entityId';
-
-
+    /**
+     * @inheritdoc
+     */
     public static function objectClass(): string
     {
         return ProviderModel::class;
     }
 
+    /**
+     * @inheritdoc
+     */
     public static function recordClass(): string
     {
         return ProviderRecord::class;
     }
 
-    public function stringProperty(): string
-    {
-        return static::HANDLE;
-    }
-
+    /**
+     * @inheritdoc
+     */
     public function getRecordByModel(Model $model): ActiveRecord
     {
         /** @var $model ProviderModel */
         return ProviderRecord::findOne([
-           'entityId' => $model->getEntityId(),
+            'entityId' => $model->getEntityId(),
         ]);
 
     }
@@ -66,31 +72,49 @@ class Provider extends Component
 //        // Populate the record attributes
 //        $this->transferToRecord($model, $record);
 //        return $record;
-
         /** @var $model ProviderModel */
+        $metadata = SerializeHelper::toXml($model->getMetadata());
         return new ProviderRecord([
-            'id' => $model->getId(),
-            'isNewRecord' => $this->isNew($model),
-            'entityId' => $model->getEntityId(),
-            'metadata' => SerializeHelper::toXml($model->getMetadata()),
-            'enabled'  => (bool)$model->enabled,
-            'signResponse'  => (bool)$model->signResponse,
-            'encryptAssertions'  => (bool)$model->encryptAssertions,
-            'key'  => (bool)$model->getKey(),
+            'id'                => $model->getId(),
+            'isNewRecord'       => $this->isNew($model),
+            'entityId'          => $model->getEntityId(),
+            'metadata'          => $metadata,
+            'sha256'            => hash('sha256', $metadata),
+            'sortOrder'         => $model->sortOrder,
+            'enabled'           => (bool)$model->enabled,
+            'signResponse'      => (bool)$model->signResponse,
+            'encryptAssertions' => (bool)$model->encryptAssertions,
+            'localKeyId'        => $model->localKeyId,
         ]);
     }
 
+    /**
+     * @param Model $model
+     * @return bool
+     */
     public function isNew(Model $model): bool
     {
         return ! $model->id;
     }
 
     /**
+     * @param string $entityId
+     * @return ProviderRecord|null
+     */
+    public function findByEntityId($entityId)
+    {
+        return ProviderRecord::find()->andWhere([
+            'entityId' => $entityId,
+            'enabled'  => true,
+        ])->orderBy('sortOrder')->one();
+    }
+
+    /**
      * @param Issuer $issuer
-     * @return \flipbox\saml\idp\models\Provider
+     * @return ProviderRecord|null
      */
     public function findByIssuer(Issuer $issuer)
     {
-        return $this->findByString($issuer->getValue());
+        return $this->findByEntityId($issuer->getValue());
     }
 }

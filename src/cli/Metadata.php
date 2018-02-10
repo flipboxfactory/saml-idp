@@ -10,29 +10,46 @@ namespace flipbox\saml\idp\cli;
 
 
 use craft\helpers\Console;
-use flipbox\keychain\keypair\KeyPairInterface;
-use flipbox\keychain\keypair\OpenSSL;
+use flipbox\keychain\keypair\traits\OpenSSL;
+use flipbox\keychain\keypair\traits\OpenSSLCliUtil;
+use flipbox\keychain\records\KeyChainRecord;
+use flipbox\saml\core\cli\AbstractMetadata;
+use flipbox\saml\core\records\ProviderInterface;
 use flipbox\saml\idp\models\Provider;
+use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
 use yii\console\Controller;
 use yii\console\ExitCode;
-use flipbox\keychain\keypair\traits\OpenSSL as OpenSSLTrait;
 
-class Metadata extends Controller
+class Metadata extends AbstractMetadata
 {
+    use OpenSSL, OpenSSLCliUtil;
 
-    use OpenSSLTrait;
     /**
      * @var bool $force
      * Force save the metadata. If one already exists, it'll be overwritten.
      */
     public $force;
 
+    /**
+     * @var int
+     * Set the key pair id that you want to use to associate to this record
+     */
+    public $keyPairId;
+
+    /**
+     * @var bool
+     * Create a new key pair for this server to use to encrypt and sign messages to the remote server
+     */
+    public $createKeyPair = true;
+
     public function options($actionID)
     {
         return array_merge(
             [
                 'force',
+                'keyPairId',
+                'createKeyPair',
             ],
             parent::options($actionID)
         );
@@ -49,99 +66,12 @@ class Metadata extends Controller
     }
 
     /**
-     * @return KeyPairInterface
+     * @param array $config
+     * @return ProviderInterface
      */
-    protected function configKeyPair()
+    protected function newProviderRecord(array $config): ProviderInterface
     {
-        $this->stdout(
-            PHP_EOL . PHP_EOL . '****************************************************' .
-            $this->startNoticeText
-            .'****************************************************' . PHP_EOL . PHP_EOL
-            , Console::FG_GREEN);
-
-        $config = [];
-        foreach ($this->attributes as $attribute => $options) {
-            $config[$attribute] = $this->prompt(
-                $this->labels[$attribute],
-                $options
-            );
-        }
-
-        return new OpenSSL($config);
+        return new ProviderRecord($config);
     }
 
-    public function actionCreate()
-    {
-
-        //create key pair
-        $keyPair = $this->configKeyPair();
-
-        $keyPairRecord = $keyPair->create();
-
-        //create metadata
-        var_dump($keyPairRecord);
-        exit;
-        return ExitCode::OK;
-    }
-
-    public function actionSave($file = null, $default = true, $enabled = true)
-    {
-
-        if (! $file) {
-            $this->stderr("No file passed.");
-            return ExitCode::NOINPUT;
-        }
-        $newProvider = new Provider([
-            'metadata' => file_get_contents($file),
-            'enabled'  => $enabled,
-        ]);
-
-        /** @var Provider $provider */
-        if ($provider = Saml::getInstance()->getProvider()->findByString($newProvider->getEntityId())) {
-            $provider->setMetadata($newProvider->getMetadata());
-        } else {
-            $provider = new Provider([
-                'metadata' => file_get_contents($file),
-                'enabled'  => $enabled,
-            ]);
-
-        }
-
-        if ($provider->id && ! $this->force) {
-
-            if (! $this->confirm(sprintf(
-                    "Are you sure you want to overwrite %s?",
-                    $provider->getEntityId()
-                )
-            )
-            ) {
-                $this->stdout('Exiting.' . PHP_EOL);
-                return ExitCode::OK;
-            }
-
-        }
-
-        if (Saml::getInstance()->getProvider()->save($provider)) {
-
-            $this->stdout(sprintf(
-                    'Save for %s metadata was successful.',
-                    $provider->getEntityId()
-                ) . PHP_EOL, Console::FG_GREEN);
-            return ExitCode::OK;
-        }
-
-        return ExitCode::UNSPECIFIED_ERROR;
-    }
-
-    public function actionDelete($entityId)
-    {
-        if (! Saml::getInstance()->getProvider()->delete(new Provider([
-            'entityId' => $entityId,
-        ]))) {
-            $this->stderr("Couldn't delete provider {$entityId}", Console::FG_RED);
-        }
-
-
-        $this->stdout("Successfully deleted provider {$entityId}" . PHP_EOL, Console::FG_GREEN);
-    }
 }

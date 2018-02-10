@@ -22,15 +22,14 @@ class Provider extends ModelWithId implements ProviderInterface
 
     use StateAttribute;
 
-    /**
-     * @var bool
-     */
-    public $encryptAssertions = false;
+    public function init()
+    {
+        parent::init();
 
-    /**
-     * @var bool
-     */
-    public $signResponse = true;
+        if ($this->enabled === null) {
+            $this->toEnabled();
+        }
+    }
 
     /**
      * @var $entityId string
@@ -42,12 +41,34 @@ class Provider extends ModelWithId implements ProviderInterface
      */
     protected $metadata;
 
+    /**
+     * @var int
+     * sortOrder set to have a way to pick a default
+     */
+    public $sortOrder = 0;
+
+    /**
+     * @var integer
+     */
+    public $localKeyId;
+
+    /**
+     * @var bool
+     */
+    public $encryptAssertions = false;
+
+    /**
+     * @var bool
+     */
+    public $signResponse = true;
+
     public function attributes()
     {
         return array_merge(
             [
                 'entityId',
                 'metadata',
+                'sortOrder',
             ],
             parent::attributes()
         );

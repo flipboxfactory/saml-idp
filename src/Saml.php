@@ -10,12 +10,14 @@ namespace flipbox\saml\idp;
 
 
 use Craft;
+use craft\base\Model;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
 use craft\web\User;
-use flipbox\keychain\events\AnyoneUsingMe;
-use flipbox\keychain\services\KeyChainService;
 use flipbox\keychain\traits\ModuleTrait as KeyChainModuleTrait;
+use flipbox\saml\core\SamlPluginInterface;
+use flipbox\saml\core\services\messages\MetadataServiceInterface;
+use flipbox\saml\core\services\messages\ProviderServiceInterface;
 use flipbox\saml\idp\models\Settings;
 use flipbox\saml\idp\services\bindings\HttpPost;
 use flipbox\saml\idp\services\Login;
@@ -30,7 +32,7 @@ use flipbox\saml\idp\services\ProviderIdentity;
 use flipbox\saml\idp\services\Session;
 use yii\base\Event;
 
-class Saml extends Plugin
+class Saml extends Plugin implements SamlPluginInterface
 {
     use KeyChainModuleTrait;
 
@@ -47,6 +49,7 @@ class Saml extends Plugin
             $this->controllerNamespace = __NAMESPACE__ . '\cli';
             $this->controllerMap = [
                 'metadata' => \flipbox\saml\idp\cli\Metadata::class,
+                'keychain' => \flipbox\saml\idp\cli\KeyChain::class,
             ];
         }
     }
@@ -89,7 +92,7 @@ class Saml extends Plugin
     /**
      * @return Settings
      */
-    public function getSettings()
+    public function getSettings(): Model
     {
         return parent::getSettings();
     }
@@ -157,7 +160,7 @@ class Saml extends Plugin
     /**
      * @returns Provider
      */
-    public function getProvider()
+    public function getProvider(): ProviderServiceInterface
     {
         return $this->get('provider');
     }
@@ -173,7 +176,7 @@ class Saml extends Plugin
     /**
      * @return Metadata
      */
-    public function getMetadata()
+    public function getMetadata(): MetadataServiceInterface
     {
         return $this->get('metadata');
     }

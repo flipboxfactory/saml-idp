@@ -10,7 +10,6 @@ namespace flipbox\saml\idp\records;
 
 
 use flipbox\ember\records\ActiveRecord;
-use flipbox\ember\helpers\ModelHelper;
 
 class ProviderIdentityRecord extends ActiveRecord
 {

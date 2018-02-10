@@ -11,20 +11,22 @@ namespace flipbox\saml\idp\services\messages;
 
 use craft\base\Component;
 use craft\helpers\UrlHelper;
-use flipbox\saml\idp\exceptions\InvalidMetadata;
-use LightSaml\Model\Assertion\Attribute;
+use flipbox\keychain\records\KeyChainRecord;
+use flipbox\saml\core\exceptions\InvalidMetadata;
+use flipbox\saml\core\records\ProviderInterface;
+use flipbox\saml\core\SamlPluginInterface;
+use flipbox\saml\core\services\messages\MetadataServiceInterface;
+use flipbox\saml\core\services\traits\Metadata as MetadataTrait;
 use LightSaml\Model\Metadata\EntityDescriptor;
 use LightSaml\Model\Metadata\IdpSsoDescriptor;
 use LightSaml\Model\Metadata\SingleLogoutService;
-use LightSaml\Model\Metadata\KeyDescriptor;
-use LightSaml\Credential\X509Certificate;
 use LightSaml\Model\Metadata\SingleSignOnService;
 use LightSaml\SamlConstants;
 use flipbox\saml\idp\Saml;
 
-class Metadata extends Component
+class Metadata extends Component implements MetadataServiceInterface
 {
-    use \flipbox\saml\core\services\traits\Metadata;
+    use MetadataTrait;
 
     /**
      *
@@ -56,6 +58,7 @@ class Metadata extends Component
     {
         return UrlHelper::actionUrl(static::LOGIN_LOCATION);
     }
+
     /**
      * @var array
      */
@@ -73,9 +76,12 @@ class Metadata extends Component
     }
 
     /**
-     * @return EntityDescriptor
+     * @param KeyChainRecord|null $withKeyPair
+     * @param bool $createKeyFromSettings
+     * @return ProviderInterface
+     * @throws InvalidMetadata
      */
-    public function create()
+    public function create(KeyChainRecord $withKeyPair = null, $createKeyFromSettings = false) : ProviderInterface
     {
         /** @var IdpSsoDescriptor $idpRedirectDescriptor */
         $idpRedirectDescriptor = $this->createRedirectDescriptor()
@@ -118,6 +124,7 @@ class Metadata extends Component
 
     /**
      * @return IdpSsoDescriptor
+     * @throws InvalidMetadata
      */
     public function createRedirectDescriptor()
     {
@@ -126,6 +133,7 @@ class Metadata extends Component
 
     /**
      * @return IdpSsoDescriptor
+     * @throws InvalidMetadata
      */
     public function createPostDescriptor()
     {
@@ -152,45 +160,19 @@ class Metadata extends Component
         );
 
 
-        $this->setEncrypt($idpDescriptor);
-        $this->setSign($idpDescriptor);
-
         return $idpDescriptor;
 
     }
 
     /**
-     * @param IdpSsoDescriptor $idpSsoDescriptor
+     * Utils
      */
-    public function setSign(IdpSsoDescriptor $idpSsoDescriptor)
-    {
-        if (Saml::getInstance()->getSettings()->signAuthnRequest) {
-
-            $idpSsoDescriptor->addKeyDescriptor(
-                $keyDescriptor = (new KeyDescriptor())
-                    ->setUse(KeyDescriptor::USE_SIGNING)
-                    ->setCertificate(X509Certificate::fromFile(Saml::getInstance()->getSettings()->certPath))
-            );
-        }
-
-    }
 
     /**
-     * @param IdpSsoDescriptor $idpSsoDescriptor
+     * @inheritdoc
      */
-    public function setEncrypt(IdpSsoDescriptor $idpSsoDescriptor)
+    protected function getSamlPlugin(): SamlPluginInterface
     {
-
-        if (Saml::getInstance()->getSettings()->encryptAssertions) {
-            $idpSsoDescriptor->addKeyDescriptor(
-                $keyDescriptor = (new KeyDescriptor())
-                    ->setUse(KeyDescriptor::USE_ENCRYPTION)
-                    ->setCertificate(X509Certificate::fromFile(Saml::getInstance()->getSettings()->certPath))
-            );
-
-        }
-
-
+        return Saml::getInstance();
     }
-
 }
