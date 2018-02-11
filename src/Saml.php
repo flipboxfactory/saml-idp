@@ -18,6 +18,7 @@ use flipbox\keychain\traits\ModuleTrait as KeyChainModuleTrait;
 use flipbox\saml\core\SamlPluginInterface;
 use flipbox\saml\core\services\messages\MetadataServiceInterface;
 use flipbox\saml\core\services\messages\ProviderServiceInterface;
+use flipbox\saml\core\traits\SamlCore;
 use flipbox\saml\idp\models\Settings;
 use flipbox\saml\idp\services\bindings\HttpPost;
 use flipbox\saml\idp\services\Login;
@@ -34,7 +35,7 @@ use yii\base\Event;
 
 class Saml extends Plugin implements SamlPluginInterface
 {
-    use KeyChainModuleTrait;
+    use KeyChainModuleTrait, SamlCore;
 
     public function init()
     {
@@ -57,6 +58,7 @@ class Saml extends Plugin implements SamlPluginInterface
     public function initModules()
     {
         $this->initKeyChain();
+        $this->initCore();
     }
 
     public function initComponents()

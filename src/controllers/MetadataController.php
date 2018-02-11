@@ -10,26 +10,16 @@ namespace flipbox\saml\idp\controllers;
 
 
 use craft\web\Controller;
+use flipbox\saml\core\controllers\AbstractMetadataController;
 use flipbox\saml\core\helpers\SerializeHelper;
+use flipbox\saml\core\SamlPluginInterface;
 use flipbox\saml\idp\Saml;
 
-class MetadataController extends Controller
+class MetadataController extends AbstractMetadataController
 {
 
-    /**
-     * @return string
-     * @throws \yii\web\ForbiddenHttpException
-     */
-    public function actionIndex()
+    protected function getSamlPlugin(): SamlPluginInterface
     {
-
-        $this->requireAdmin();
-
-        $metadata = Saml::getInstance()->getMetadata()->create();
-
-
-        SerializeHelper::xmlContentType();
-        return SerializeHelper::toXml($metadata);
+        return Saml::getInstance();
     }
-
 }

@@ -13,14 +13,18 @@ use craft\base\Component;
 use craft\helpers\UrlHelper;
 use flipbox\keychain\records\KeyChainRecord;
 use flipbox\saml\core\exceptions\InvalidMetadata;
+use flipbox\saml\core\helpers\SerializeHelper;
+use flipbox\saml\core\records\AbstractProvider;
 use flipbox\saml\core\records\ProviderInterface;
 use flipbox\saml\core\SamlPluginInterface;
 use flipbox\saml\core\services\messages\MetadataServiceInterface;
 use flipbox\saml\core\services\traits\Metadata as MetadataTrait;
+use flipbox\saml\idp\records\ProviderRecord;
 use LightSaml\Model\Metadata\EntityDescriptor;
 use LightSaml\Model\Metadata\IdpSsoDescriptor;
 use LightSaml\Model\Metadata\SingleLogoutService;
 use LightSaml\Model\Metadata\SingleSignOnService;
+use LightSaml\Model\Metadata\SSODescriptor;
 use LightSaml\SamlConstants;
 use flipbox\saml\idp\Saml;
 
@@ -34,6 +38,7 @@ class Metadata extends Component implements MetadataServiceInterface
     const LOGIN_LOCATION = 'saml-idp/login/request';
     const LOGOUT_RESPONSE_LOCATION = 'saml-idp/logout/response';
     const LOGOUT_REQUEST_LOCATION = 'saml-idp/logout/request';
+
 
     /**
      * @return string
@@ -60,14 +65,6 @@ class Metadata extends Component implements MetadataServiceInterface
     }
 
     /**
-     * @var array
-     */
-    protected $supportedBindings = [
-        SamlConstants::BINDING_SAML2_HTTP_REDIRECT,
-        SamlConstants::BINDING_SAML2_HTTP_POST,
-    ];
-
-    /**
      * @return array
      */
     public function getSupportedBindings()
@@ -76,12 +73,30 @@ class Metadata extends Component implements MetadataServiceInterface
     }
 
     /**
+     * @param AbstractProvider $provider
+     * @return bool
+     */
+    protected function useEncryption(AbstractProvider $provider)
+    {
+        return $provider->encryptAssertions;
+    }
+
+    /**
+     * @param AbstractProvider $provider
+     * @return bool
+     */
+    protected function useSigning(AbstractProvider $provider)
+    {
+        return $provider->signResponse;
+    }
+
+    /**
      * @param KeyChainRecord|null $withKeyPair
      * @param bool $createKeyFromSettings
      * @return ProviderInterface
      * @throws InvalidMetadata
      */
-    public function create(KeyChainRecord $withKeyPair = null, $createKeyFromSettings = false) : ProviderInterface
+    public function create(KeyChainRecord $withKeyPair = null, $createKeyFromSettings = false): ProviderInterface
     {
         /** @var IdpSsoDescriptor $idpRedirectDescriptor */
         $idpRedirectDescriptor = $this->createRedirectDescriptor()
@@ -119,7 +134,36 @@ class Metadata extends Component implements MetadataServiceInterface
                 $idpPostDescriptor,
             ]);
 
-        return $entityDescriptor;
+        $provider = (new ProviderRecord())
+            ->loadDefaultValues();
+
+        /**
+         * Load Defaults to know what to do with
+         */
+        $provider->loadDefaultValues();
+
+        if ($withKeyPair) {
+            if ($this->useEncryption($provider)) {
+                $this->setEncrypt($idpRedirectDescriptor, $withKeyPair);
+                $this->setEncrypt($idpPostDescriptor, $withKeyPair);
+            }
+            if ($this->useSigning($provider)) {
+                $this->setSign($idpRedirectDescriptor, $withKeyPair);
+                $this->setSign($idpPostDescriptor, $withKeyPair);
+            }
+        }
+
+        \Craft::configure($provider, [
+            'entityId' => $entityDescriptor->getEntityID(),
+            'metadata' => SerializeHelper::toXml($entityDescriptor),
+        ]);
+
+
+        if (! $this->saveProvider($provider)) {
+            throw new \Exception($provider->getFirstError());
+        }
+
+        return $provider;
     }
 
     /**

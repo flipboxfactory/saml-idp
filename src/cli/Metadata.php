@@ -15,6 +15,7 @@ use flipbox\keychain\keypair\traits\OpenSSLCliUtil;
 use flipbox\keychain\records\KeyChainRecord;
 use flipbox\saml\core\cli\AbstractMetadata;
 use flipbox\saml\core\records\ProviderInterface;
+use flipbox\saml\core\SamlPluginInterface;
 use flipbox\saml\idp\models\Provider;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
@@ -74,4 +75,12 @@ class Metadata extends AbstractMetadata
         return new ProviderRecord($config);
     }
 
+
+    /**
+     * @return SamlPluginInterface
+     */
+    protected function getSamlPlugin(): SamlPluginInterface
+    {
+        return Saml::getInstance();
+    }
 }
