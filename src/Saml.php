@@ -17,7 +17,7 @@ use craft\web\User;
 use flipbox\keychain\traits\ModuleTrait as KeyChainModuleTrait;
 use flipbox\saml\core\SamlPluginInterface;
 use flipbox\saml\core\services\messages\MetadataServiceInterface;
-use flipbox\saml\core\services\messages\ProviderServiceInterface;
+use flipbox\saml\core\services\ProviderServiceInterface;
 use flipbox\saml\core\traits\SamlCore;
 use flipbox\saml\idp\models\Settings;
 use flipbox\saml\idp\services\bindings\HttpPost;
@@ -73,7 +73,7 @@ class Saml extends Plugin implements SamlPluginInterface
             'provider'         => Provider::class,
             'providerIdentity' => ProviderIdentity::class,
             'metadata'         => Metadata::class,
-            'Response'         => Response::class,
+            'response'         => Response::class,
             'session'          => Session::class,
         ]);
     }
@@ -85,7 +85,7 @@ class Saml extends Plugin implements SamlPluginInterface
             User::EVENT_AFTER_LOGIN,
             [
                 $this->getResponse(),
-                'createAndSend'
+                'createAndSendFromSession'
             ]
         );
 

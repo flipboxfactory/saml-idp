@@ -11,52 +11,36 @@ namespace flipbox\saml\idp\services\messages;
 
 use craft\base\Component;
 use flipbox\saml\core\exceptions\InvalidMessage;
+use flipbox\saml\core\helpers\SecurityHelper;
 use flipbox\saml\idp\models\Settings;
 use flipbox\saml\idp\Saml;
-use flipbox\saml\core\services\traits\Security;
-use LightSaml\Credential\X509Certificate;
 use LightSaml\Helper;
 use LightSaml\Model\Assertion\Issuer;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use yii\validators\Validator;
-use yii\web\Request;
+use LightSaml\Model\Metadata\KeyDescriptor;
 
 class AuthnRequest extends Component
 {
 
-    use Security;
-
     /**
-     * @return XMLSecurityKey
+     * @param \LightSaml\Model\Protocol\AuthnRequest $authnRequest
+     * @return bool
+     * @throws InvalidMessage
      */
-    public function getKey(): XMLSecurityKey
+    public function isValid(\LightSaml\Model\Protocol\AuthnRequest $authnRequest)
     {
-        return \LightSaml\Credential\KeyHelper::createPrivateKey(
-            Saml::getInstance()->getSettings()->keyPath,
-            '',
-            true
-        );
-    }
-
-    /**
-     * @return X509Certificate
-     */
-    public function getCertificate(): X509Certificate
-    {
-        return X509Certificate::fromFile(
-            Saml::getInstance()->getSettings()->certPath
-        );
-    }
-
-    public function isValid(\LightSaml\Model\Protocol\AuthnRequest $authnRequest) {
-        if( ! ($provider = Saml::getInstance()->getProvider()->findByIssuer(
-            $authnRequest->getIssuer()
+        if (! ($provider = Saml::getInstance()->getProvider()->findByEntityId(
+            $authnRequest->getIssuer()->getValue()
         ))) {
             throw new InvalidMessage("Invalid Message.");
         }
 
-        if($authnRequest->getSignature()){
-            if($this->validSignature($authnRequest, $provider)) {
+        if ($authnRequest->getSignature()) {
+            if (
+                ! SecurityHelper::validSignature(
+                    $authnRequest,
+                    $provider->getMetadataModel()->getFirstSpSsoDescriptor()->getFirstKeyDescriptor(KeyDescriptor::USE_SIGNING)
+                )
+            ) {
                 throw new InvalidMessage("Invalid Message.");
             }
         }
@@ -68,18 +52,10 @@ class AuthnRequest extends Component
      * @param \craft\web\Request $request
      * @return \LightSaml\Model\Protocol\AuthnRequest
      */
-    public function parseByRequest(\craft\web\Request $request) : \LightSaml\Model\Protocol\AuthnRequest
+    public function parseByRequest(\craft\web\Request $request): \LightSaml\Model\Protocol\AuthnRequest
     {
 
-        switch ($request->getMethod()) {
-            case 'POST':
-                $authnRequest = Saml::getInstance()->getHttpPost()->receive($request);
-                break;
-            case 'GET':
-            default:
-                $authnRequest = Saml::getInstance()->getHttpRedirect()->receive($request);
-                break;
-        }
+
 
         if (! ($authnRequest instanceof \LightSaml\Model\Protocol\AuthnRequest)) {
             throw new InvalidMessage("Invalid Message.");

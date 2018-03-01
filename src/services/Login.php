@@ -26,20 +26,7 @@ use yii\base\UserException;
 use craft\db\Query;
 class Login extends Component
 {
-    use Security;
-
     const EVENT_ATTRIBUTE_TRANSFORMER = 'attributeTransformer';
-
-    public function getKey(): XMLSecurityKey
-    {
-        return Saml::getInstance()->getSettings()->getKey();
-    }
-
-    public function getCertificate(): X509Certificate
-    {
-        return Saml::getInstance()->getSettings()->getCertificate();
-    }
-
 
     public function loginFromSession()
     {

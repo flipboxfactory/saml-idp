@@ -34,8 +34,6 @@ class Install extends AbstractInstall
         return array_merge(
             parent::getProviderFields(),
             [
-                'encryptAssertions' => $this->boolean()->defaultValue(false)->notNull(),//->after(static::PROVIDER_AFTER_COLUMN),
-                'signResponse'      => $this->boolean()->defaultValue(true)->notNull(),//->after(static::PROVIDER_AFTER_COLUMN),
                 'useCpLogin'        => $this->boolean()->defaultValue(true)->notNull(),//->after(static::PROVIDER_AFTER_COLUMN),
             ]
         );

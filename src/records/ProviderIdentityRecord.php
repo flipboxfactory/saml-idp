@@ -9,11 +9,45 @@
 namespace flipbox\saml\idp\records;
 
 
-use flipbox\ember\records\ActiveRecord;
+use flipbox\ember\records\traits\StateAttribute;
+use flipbox\saml\core\records\AbstractProviderIdentity;
 
-class ProviderIdentityRecord extends ActiveRecord
+class ProviderIdentityRecord extends AbstractProviderIdentity
 {
+
+    use StateAttribute;
 
     const TABLE_ALIAS = 'saml_idp_provider_identity';
 
+    /**
+     * @inheritdoc
+     */
+    public function rules()
+    {
+        return array_merge(parent::rules(), [
+            [
+                [
+                    'lastLoginDate',
+                    'sessionId',
+                ],
+                'safe',
+                'on' => [
+                    ModelHelper::SCENARIO_DEFAULT
+                ]
+            ]
+        ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getProvider()
+    {
+        return $this->hasOne(
+            ProviderRecord::class,
+            [
+                'providerId' => 'id',
+            ]
+        );
+    }
 }

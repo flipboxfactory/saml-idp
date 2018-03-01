@@ -104,10 +104,7 @@ class Settings extends Model implements SettingsInterface
      */
 
     public $responseAttributeMap = [
-        ClaimTypes::EMAIL_ADDRESS => 'email',
-        ClaimTypes::GIVEN_NAME    => 'firstName',
-        ClaimTypes::SURNAME       => 'lastName',
-
+        //craft user/response assertion attribute name mapping
         'email'     => 'email',
         'firstName' => 'firstName',
         'lastName'  => 'lastName',

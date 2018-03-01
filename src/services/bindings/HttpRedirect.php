@@ -9,19 +9,11 @@
 namespace flipbox\saml\idp\services\bindings;
 
 
-use craft\web\Request;
 use flipbox\saml\core\exceptions\InvalidIssuer;
 use flipbox\saml\core\services\bindings\AbstractHttpRedirect;
 use flipbox\saml\sp\Saml;
-use flipbox\saml\sp\services\traits\Security;
-use LightSaml\Error\LightSamlBindingException;
 use LightSaml\Model\Assertion\Issuer;
-use LightSaml\Model\Context\DeserializationContext;
-use LightSaml\Model\Protocol\SamlMessage;
-use LightSaml\Model\XmlDSig\SignatureStringReader;
-use LightSaml\SamlConstants;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use LightSaml\Credential\X509Certificate;
+use flipbox\saml\core\records\ProviderInterface;
 
 class HttpRedirect extends AbstractHttpRedirect
 {
@@ -30,8 +22,8 @@ class HttpRedirect extends AbstractHttpRedirect
      */
     public function getProviderByIssuer(Issuer $issuer): ProviderInterface
     {
-        $provider = Saml::getInstance()->getProvider()->findByIssuer(
-            $issuer
+        $provider = Saml::getInstance()->getProvider()->findByEntityId(
+            $issuer->getValue()
         );
         if(!$provider) {
             throw new InvalidIssuer(

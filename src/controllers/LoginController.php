@@ -12,6 +12,7 @@ namespace flipbox\saml\idp\controllers;
 use craft\web\Controller;
 use flipbox\saml\idp\Saml;
 use Craft;
+use flipbox\saml\idp\services\bindings\Factory;
 use yii\web\HttpException;
 
 class LoginController extends Controller
@@ -30,10 +31,7 @@ class LoginController extends Controller
      */
     public function beforeAction($action)
     {
-        if ($action->actionMethod === 'actionIndex') {
-            return true;
-        }
-        return parent::beforeAction($action);
+        return true;
     }
 
     public function actionIndex()
@@ -48,31 +46,34 @@ class LoginController extends Controller
 
         //get relay state but don't error!
         $relayState = \Craft::$app->request->getQueryParam('RelayState') ?: \Craft::$app->request->getBodyParam('RelayState');
-        try{
-           $redirect = base64_decode($relayState);
-        }catch(\Exception $e){
-           $redirect = \Craft::$app->getUser()->getReturnUrl();
+        try {
+            $redirect = base64_decode($relayState);
+        } catch (\Exception $e) {
+            $redirect = \Craft::$app->getUser()->getReturnUrl();
         }
 
-        $this->renderTemplate()
+//        $this->renderTemplate()
         return $this->redirect($redirect);
     }
 
     public function actionRequest()
     {
 
-        $authnRequest = Saml::getInstance()->getAuthnRequest()->parseByRequest(Craft::$app->request);
+        $authnRequest = Factory::receive(Craft::$app->request);
 
         Saml::getInstance()->getAuthnRequest()->isValid($authnRequest);
 
-        if( $user = Craft::$app->getUser()->getIdentity() ) {
+        if ($user = Craft::$app->getUser()->getIdentity()) {
             //create response and send back to the sp
-//            Saml::getInstance()->getResponse()->create($authnRequest);
+            Saml::getInstance()->getResponse()->createAndSend($authnRequest);
+            return;
         }
+
         //save to session and redirect to login
         Saml::getInstance()->getSession()->setAuthnRequest($authnRequest);
+
         return $this->redirect(
-            Craft::$app->config->general->loginPath
+            Craft::$app->config->general->getLoginPath()
         );
     }
 

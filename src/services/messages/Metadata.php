@@ -24,7 +24,6 @@ use LightSaml\Model\Metadata\EntityDescriptor;
 use LightSaml\Model\Metadata\IdpSsoDescriptor;
 use LightSaml\Model\Metadata\SingleLogoutService;
 use LightSaml\Model\Metadata\SingleSignOnService;
-use LightSaml\Model\Metadata\SSODescriptor;
 use LightSaml\SamlConstants;
 use flipbox\saml\idp\Saml;
 
@@ -78,7 +77,7 @@ class Metadata extends Component implements MetadataServiceInterface
      */
     protected function useEncryption(AbstractProvider $provider)
     {
-        return $provider->encryptAssertions;
+        return Saml::getInstance()->getSettings()->encryptAssertions;
     }
 
     /**
@@ -87,7 +86,7 @@ class Metadata extends Component implements MetadataServiceInterface
      */
     protected function useSigning(AbstractProvider $provider)
     {
-        return $provider->signResponse;
+        return Saml::getInstance()->getSettings()->signAuthnRequest;
     }
 
     /**
@@ -98,41 +97,48 @@ class Metadata extends Component implements MetadataServiceInterface
      */
     public function create(KeyChainRecord $withKeyPair = null, $createKeyFromSettings = false): ProviderInterface
     {
-        /** @var IdpSsoDescriptor $idpRedirectDescriptor */
-        $idpRedirectDescriptor = $this->createRedirectDescriptor()
-            ->addSingleSignOnService(
-                new SingleSignOnService(
-                    static::getLoginLocation(),
-                    SamlConstants::BINDING_SAML2_HTTP_REDIRECT
+        $descriptors = [];
+        if ($this->supportsRedirect()) {
+
+            /** @var IdpSsoDescriptor $idpRedirectDescriptor */
+            $idpRedirectDescriptor = $this->createRedirectDescriptor()
+                ->addSingleSignOnService(
+                    new SingleSignOnService(
+                        static::getLoginLocation(),
+                        SamlConstants::BINDING_SAML2_HTTP_REDIRECT
+                    )
                 )
-            )
-            ->addSingleLogoutService(
-                (new SingleLogoutService())
-                    ->setLocation(static::getLogoutResponseLocation())
-                    ->setResponseLocation(static::getLogoutResponseLocation())
-                    ->setBinding(SamlConstants::BINDING_SAML2_HTTP_REDIRECT)
-            );
-        /** @var IdpSsoDescriptor $idpPostDescriptor */
-        $idpPostDescriptor = $this->createPostDescriptor()
-            ->addSingleSignOnService(
-                new SingleSignOnService(
-                    static::getLoginLocation(),
-                    SamlConstants::BINDING_SAML2_HTTP_POST
+                ->addSingleLogoutService(
+                    (new SingleLogoutService())
+                        ->setLocation(static::getLogoutResponseLocation())
+                        ->setResponseLocation(static::getLogoutResponseLocation())
+                        ->setBinding(SamlConstants::BINDING_SAML2_HTTP_REDIRECT)
+                );
+            $descriptors[] = $idpRedirectDescriptor;
+        }
+        if ($this->supportsPost()) {
+
+            /** @var IdpSsoDescriptor $idpPostDescriptor */
+            $idpPostDescriptor = $this->createPostDescriptor()
+                ->addSingleSignOnService(
+                    new SingleSignOnService(
+                        static::getLoginLocation(),
+                        SamlConstants::BINDING_SAML2_HTTP_POST
+                    )
                 )
-            )
-            ->addSingleLogoutService(
-                (new SingleLogoutService())
-                    ->setLocation(static::getLogoutRequestLocation())
-                    ->setResponseLocation(static::getLogoutResponseLocation())
-                    ->setBinding(SamlConstants::BINDING_SAML2_HTTP_POST)
-            );
+                ->addSingleLogoutService(
+                    (new SingleLogoutService())
+                        ->setLocation(static::getLogoutRequestLocation())
+                        ->setResponseLocation(static::getLogoutResponseLocation())
+                        ->setBinding(SamlConstants::BINDING_SAML2_HTTP_POST)
+                );
+            $descriptors[] = $idpPostDescriptor;
+        }
 
         $entityDescriptor = new EntityDescriptor(
             Saml::getInstance()->getSettings()->getEntityId(),
-            [
-                $idpRedirectDescriptor,
-                $idpPostDescriptor,
-            ]);
+            $descriptors
+        );
 
         $provider = (new ProviderRecord())
             ->loadDefaultValues();
@@ -141,15 +147,24 @@ class Metadata extends Component implements MetadataServiceInterface
          * Load Defaults to know what to do with
          */
         $provider->loadDefaultValues();
+        $provider->providerType = 'idp';
 
         if ($withKeyPair) {
             if ($this->useEncryption($provider)) {
-                $this->setEncrypt($idpRedirectDescriptor, $withKeyPair);
-                $this->setEncrypt($idpPostDescriptor, $withKeyPair);
+                if ($this->supportsRedirect()) {
+                    $this->setEncrypt($idpRedirectDescriptor, $withKeyPair);
+                }
+                if ($this->supportsPost()) {
+                    $this->setEncrypt($idpPostDescriptor, $withKeyPair);
+                }
             }
             if ($this->useSigning($provider)) {
-                $this->setSign($idpRedirectDescriptor, $withKeyPair);
-                $this->setSign($idpPostDescriptor, $withKeyPair);
+                if ($this->supportsRedirect()) {
+                    $this->setSign($idpRedirectDescriptor, $withKeyPair);
+                }
+                if ($this->supportsPost()) {
+                    $this->setSign($idpPostDescriptor, $withKeyPair);
+                }
             }
         }
 

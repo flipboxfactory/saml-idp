@@ -10,81 +10,56 @@ namespace flipbox\saml\idp\services\messages;
 
 
 use craft\base\Component;
-use craft\elements\User;
+use craft\helpers\ConfigHelper;
 use flipbox\saml\core\events\RegisterAttributesTransformer;
 use flipbox\saml\core\exceptions\InvalidMessage;
-use flipbox\saml\core\services\traits\Security;
+use flipbox\saml\core\records\ProviderInterface;
 use flipbox\saml\core\transformers\AbstractResponseToUser;
-use flipbox\saml\idp\models\Provider;
+use flipbox\saml\idp\records\ProviderRecord as Provider;
 use flipbox\saml\idp\Saml;
-use flipbox\saml\idp\services\bindings\HttpPost;
+use flipbox\saml\idp\transformers\ResponseAssertion;
 use Flipbox\Transform\Factory;
-use LightSaml\Action\Profile\Inbound\StatusResponse\StatusAction;
+use flipbox\saml\idp\services\bindings\Factory as BindingFactory;
+use LightSaml\Credential\KeyHelper;
 use LightSaml\Credential\X509Certificate;
 use LightSaml\Helper;
 use LightSaml\Model\Assertion\Assertion;
-use LightSaml\Model\Assertion\Attribute;
 use LightSaml\Model\Assertion\AttributeStatement;
+use LightSaml\Model\Assertion\AuthnContext;
+use LightSaml\Model\Assertion\AuthnStatement;
+use LightSaml\Model\Assertion\Conditions;
+use LightSaml\Model\Assertion\Issuer;
+use LightSaml\Model\Assertion\NameID;
+use LightSaml\Model\Assertion\Subject;
+use LightSaml\Model\Assertion\SubjectConfirmation;
+use LightSaml\Model\Assertion\SubjectConfirmationData;
 use LightSaml\Model\Protocol\AuthnRequest;
 use LightSaml\Model\Protocol\Response as ResponseMessage;
-use LightSaml\Model\Protocol\SamlMessage;
 use LightSaml\Model\Protocol\Status;
 use LightSaml\Model\Protocol\StatusCode;
 use LightSaml\Model\XmlDSig\SignatureWriter;
 use LightSaml\SamlConstants;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
 
 class Response extends Component
 {
 
-    use Security;
-
     const CONSENT_IMPLICIT = 'urn:oasis:names:tc:SAML:2.0:consent:current-implicit';
     const EVENT_ASSERTION_TRANSFORMATION = 'atAssertionTransformation';
+    const DEFAULT_ATTRIBUTE_TRANSFORMER = ResponseAssertion::class;
 
-    /**
-     * @return XMLSecurityKey
-     */
-    public function getKey(): XMLSecurityKey
+    public function create(AuthnRequest $authnRequest, $relayState = null)
     {
-        return \LightSaml\Credential\KeyHelper::createPrivateKey(
-            Saml::getInstance()->getSettings()->keyPath,
-            '',
-            true
+
+        /** @var Provider $idpProvider */
+        $idpProvider = Saml::getInstance()->getProvider()->findOwn();
+        $spProvider = Saml::getInstance()->getProvider()->findByEntityId(
+            $authnRequest->getIssuer()->getValue()
         );
-    }
-
-    /**
-     * @return X509Certificate
-     */
-    public function getCertificate(): X509Certificate
-    {
-        return X509Certificate::fromFile(
-            Saml::getInstance()->getSettings()->certPath
-        );
-    }
-
-    public function send(ResponseMessage $response, Provider $provider)
-    {
-
-        switch($provider->getMetadata()->getFirstSpSsoDescriptor()->getFirstAssertionConsumerService()->getBinding()){
-            case SamlConstants::BINDING_SAML2_HTTP_POST:
-                Saml::getInstance()->getHttpPost();
-                break;
-            case SamlConstants::BINDING_SAML2_HTTP_REDIRECT:
-                break;
-        }
-    }
-
-    public function createAndSend(AuthnRequest $authnRequest, string $relayState = null)
-    {
-
-        /** @var Provider $provider */
-        if ($provider = Saml::getInstance()->getProvider()->findByIssuer($authnRequest->getIssuer())) {
-            throw new InvalidMessage('invalid message');
-        }
 
         $response = new ResponseMessage();
+        $response->setIssuer(
+            new Issuer($idpProvider->entityId)
+        );
         $response->setID(Helper::generateID())
             ->setDestination(
                 $authnRequest->getAssertionConsumerServiceURL()
@@ -101,16 +76,10 @@ class Response extends Component
                 new \DateTime()
             );
 
+
         if ($relayState) {
             $response->setRelayState($relayState);
         }
-
-        /**
-         * Add Assertion
-         */
-        $response->addAssertion(
-            new Assertion()
-        );
 
         /**
          * Get User
@@ -118,76 +87,191 @@ class Response extends Component
         $user = \Craft::$app->getUser()->getIdentity();
 
         /**
+         * Add Assertion
+         */
+        $response->addAssertion(
+            $assertion = new Assertion()
+        );
+
+        $assertion->setIssuer(
+            $response->getIssuer()
+        );
+
+        $assertion->addItem(
+            $attributeStatement = new AttributeStatement()
+        );
+        /**
+         * Add Assertion Subject
+         */
+        $assertion->setSubject(
+            $subject = new Subject()
+        );
+
+        $subject->setNameID(
+            new NameID(
+                $user->username,
+                SamlConstants::NAME_ID_FORMAT_UNSPECIFIED
+            )
+        );
+
+
+        $subject->addSubjectConfirmation(
+            $subjectConfirmation = new SubjectConfirmation()
+        );
+
+        $subjectConfirmation->setMethod(
+            \LightSaml\SamlConstants::CONFIRMATION_METHOD_BEARER
+        );
+
+        $subjectConfirmation->setSubjectConfirmationData(
+            $subjectConfirmationData = new SubjectConfirmationData()
+        );
+
+        $subjectConfirmationData->setInResponseTo($authnRequest->getID())
+            ->setNotOnOrAfter(
+                new \DateTime('+1 MINUTE')
+            )->setRecipient(
+                $authnRequest->getAssertionConsumerServiceURL()
+            );
+
+        /**
+         * Conditions
+         */
+
+        $assertion->setConditions(
+            $conditions = new Conditions()
+        );
+
+        $conditions->setNotBefore(
+            (new \DateTime())
+        );
+
+        $conditions->setNotOnOrAfter(
+            new \DateTime('+1 MINUTE')
+        );
+
+        $assertion->addItem(
+            $authnStatement = new AuthnStatement()
+        );
+
+        $sessionEnd = (new \DateTime())->setTimestamp(ConfigHelper::durationInSeconds(
+                \Craft::$app->config->getGeneral()->userSessionDuration
+            ) + (new \DateTime())->getTimestamp());
+
+        $authnStatement->setAuthnInstant(new \DateTime())
+            ->setSessionNotOnOrAfter(
+                $sessionEnd
+            )->setSessionIndex(
+                \Craft::$app->session->getId()
+            )->setAuthnContext(
+                $autnContext = new AuthnContext()
+            );
+        $autnContext->setAuthnContextClassRef(
+            SamlConstants::AUTHN_CONTEXT_PASSWORD
+        );
+
+        $transformer = $this->getTransformer($spProvider);
+
+        Factory::item(new $transformer($user), $assertion);
+
+        $response->setSignature(
+            new SignatureWriter(
+                (new X509Certificate())->loadPem(
+                    $idpProvider->getKeychain()->one()->getDecryptedCertificate()
+                ),
+                KeyHelper::createPrivateKey(
+                    $idpProvider->getKeychain()->one()->getDecryptedKey(),
+                    ''
+                )
+            )
+        );
+
+
+//        if ($spProvider->encryptAssertions) {
+//            $this->encryptAssertion(
+//                $response->getFirstAssertion()
+//            );
+//        }
+
+        /**
+         * Sign message?
+         */
+        if ($spProvider->getMetadataModel()->getFirstSpSsoDescriptor()->getWantAssertionsSigned()) {
+            $assertion->setSignature(
+                new SignatureWriter(
+                    (new X509Certificate())->loadPem(
+                        $idpProvider->getKeychain()->one()->getDecryptedCertificate()
+                    ),
+                    KeyHelper::createPrivateKey(
+                        $idpProvider->getKeychain()->one()->getDecryptedKey(),
+                        ''
+                    )
+                )
+            );
+        }
+
+        return $response;
+    }
+
+
+    public function getTransformer(Provider $providerRecord)
+    {
+        /**
          * Transformation Event
          */
         $event = new RegisterAttributesTransformer();
+
         $this->trigger(
             static::EVENT_ASSERTION_TRANSFORMATION,
             $event
         );
 
-        /** @var AbstractResponseToUser $transformer */
-        $transformer = $event->getTransformer($provider->getEntityId());
-
-        /**
-         * The transformer takes precedent due to it being more flexible and elegant
-         */
-        if ($transformer instanceof AbstractResponseToUser) {
-            Factory::item(new $transformer($user), $response);
-        } else {
-            $this->setAttributesFromAssertion($user, $response->getFirstAssertion());
+        $transformer = $event->getTransformer($providerRecord->getEntityId());
+        if (! $transformer) {
+            $transformer = static::DEFAULT_ATTRIBUTE_TRANSFORMER;
         }
+        return $transformer;
 
-        if ($provider->encryptAssertions) {
-            $this->encryptAssertion(
-                $response->getFirstAssertion()
-            );
-        }
-
-        /**
-         * Sign message?
-         */
-        if ($provider->getMetadata()->getFirstSpSsoDescriptor()->getWantAssertionsSigned()) {
-            $this->signMessage($response);
-        }
-
-
-        return $this->send($response, $provider);
     }
 
     /**
-     * @param User $user
-     * @param Assertion $assertion
+     * @param AuthnRequest $authnRequest
+     * @throws \flipbox\saml\core\exceptions\InvalidMetadata
      */
-    protected function setAttributesFromAssertion(User $user, Assertion $assertion)
+    public function createAndSend(AuthnRequest $authnRequest)
     {
-        $attributeMap = Saml::getInstance()->getSettings()->responseAttributeMap;
-        $attributeStatement = new AttributeStatement();
-        $assertion->addItem(
-            $attributeStatement
+        $response = $this->create($authnRequest);
+        $provider = Saml::getInstance()->getProvider()->findByEntityId(
+            $authnRequest->getIssuer()->getValue()
         );
-
-        foreach ($attributeMap as $samlAttribute => $craftProperty) {
-            if ($user->{$craftProperty}) {
-                $attributeStatement->addAttribute(
-                    new Attribute(
-                        $samlAttribute,
-                        (string)$user->{$craftProperty}
-                    )
-                );
-            }
-        }
-
-        return $assertion;
+        $this->send($response, $provider);
     }
 
+    /**
+     * @throws InvalidMessage
+     * @throws \flipbox\saml\core\exceptions\InvalidMetadata
+     */
     public function createAndSendFromSession()
     {
+        $authnRequest = Saml::getInstance()->getSession()->getAuthnRequest();
 
-        if (! (($authnRequest = Saml::getInstance()->authnRequest()->getAuthnRequest()) instanceof AuthnRequest)) {
-            throw new InvalidMessage("Invalid Message.");
-        }
+        $response = $this->create($authnRequest, Saml::getInstance()->getSession()->getRelayState());
 
-        return $this->createAndSend($authnRequest);
+        $provider = Saml::getInstance()->getProvider()->findByEntityId(
+            $authnRequest->getIssuer()->getValue()
+        );
+
+        $this->send($response, $provider);
+    }
+
+    /**
+     * @param ResponseMessage $response
+     * @param ProviderInterface $provider
+     * @throws \flipbox\saml\core\exceptions\InvalidMetadata
+     */
+    public function send(\LightSaml\Model\Protocol\Response $response, ProviderInterface $provider)
+    {
+        BindingFactory::send($response, $provider);
+        exit(__METHOD__);
     }
 }
