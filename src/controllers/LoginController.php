@@ -34,28 +34,13 @@ class LoginController extends Controller
         return true;
     }
 
-    public function actionIndex()
-    {
-
-        $response = Saml::getInstance()->getResponse()->parseByRequest(Craft::$app->request);
-        if (! Saml::getInstance()->getAuthnRequest()->isResponseValidWithSession($response)) {
-            throw new HttpException(400, "Invalid request");
-        }
-
-        Saml::getInstance()->getLogin()->login($response);
-
-        //get relay state but don't error!
-        $relayState = \Craft::$app->request->getQueryParam('RelayState') ?: \Craft::$app->request->getBodyParam('RelayState');
-        try {
-            $redirect = base64_decode($relayState);
-        } catch (\Exception $e) {
-            $redirect = \Craft::$app->getUser()->getReturnUrl();
-        }
-
-//        $this->renderTemplate()
-        return $this->redirect($redirect);
-    }
-
+    /**
+     * @return void|\yii\web\Response
+     * @throws \Exception
+     * @throws \flipbox\saml\core\exceptions\InvalidMessage
+     * @throws \flipbox\saml\core\exceptions\InvalidMetadata
+     * @throws \flipbox\saml\core\exceptions\InvalidSignature
+     */
     public function actionRequest()
     {
 

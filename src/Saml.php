@@ -10,11 +10,11 @@ namespace flipbox\saml\idp;
 
 
 use Craft;
-use craft\base\Model;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
 use craft\web\User;
 use flipbox\keychain\traits\ModuleTrait as KeyChainModuleTrait;
+use flipbox\saml\core\models\SettingsInterface;
 use flipbox\saml\core\SamlPluginInterface;
 use flipbox\saml\core\services\messages\MetadataServiceInterface;
 use flipbox\saml\core\services\ProviderServiceInterface;
@@ -94,7 +94,7 @@ class Saml extends Plugin implements SamlPluginInterface
     /**
      * @return Settings
      */
-    public function getSettings(): Model
+    public function getSettings(): SettingsInterface
     {
         return parent::getSettings();
     }

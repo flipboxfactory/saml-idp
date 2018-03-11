@@ -10,14 +10,27 @@ namespace flipbox\saml\idp\services\messages;
 
 
 use craft\base\Component;
+use craft\elements\User;
+use flipbox\saml\idp\Saml;
+use LightSaml\Model\Assertion\NameID;
 use LightSaml\Model\Protocol\LogoutRequest as LogoutRequestModel;
 
 class LogoutRequest extends Component
 {
-    public function create()
+    public function create(User $user)
     {
+        $identity = Saml::getInstance()->getProviderIdentity()->findByUser($user);
         $logout = new LogoutRequestModel();
-//        $logout->
+        $logout->setNameID(
+            new NameID(
+                $identity->nameId
+            )
+        );
+        $logout->setSessionIndex($identity->sessionId);
     }
 
+    public function createFromSession()
+    {
+        return $this->create(\Craft::$app->getUser()->getIdentity());
+    }
 }

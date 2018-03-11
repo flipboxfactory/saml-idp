@@ -10,28 +10,34 @@ namespace flipbox\saml\idp\events;
 
 
 use craft\elements\User;
+use flipbox\saml\idp\transformers\AbstractResponseAssertion;
 use flipbox\saml\sp\transformers\AbstractResponseToUser;
 use yii\base\Event;
 use yii\base\InvalidConfigException;
 
+/**
+ * Class RegisterAttributesTransformer
+ * @package flipbox\saml\idp\events
+ */
 class RegisterAttributesTransformer extends Event
 {
-    protected $transformers =[];
+    protected $transformers = [];
 
     /**
-     * @param $entityId
-     * @param $class
+     * @param string $entityId
+     * @param string $class
      * @return $this
+     * @throws InvalidConfigException
      */
-    public function setTransformer(string $entityId,string $class)
+    public function setTransformer(string $entityId, string $class)
     {
-        if(!class_exists($class) || !(new $class(new User) instanceof AbstractResponseToUser)) {
+        if (! class_exists($class) || ! (new $class(new User) instanceof AbstractResponseAssertion)) {
             throw new InvalidConfigException(
-               sprintf(
-                   "Transformer must be class of instanceof %s. %s was given and incorrect.",
-                   AbstractResponseToUser::class,
-                   $class
-               )
+                sprintf(
+                    "Transformer must be class of instanceof %s. %s was given and incorrect.",
+                    AbstractResponseAssertion::class,
+                    $class
+                )
             );
         }
         $this->transformers[$entityId] = $class;

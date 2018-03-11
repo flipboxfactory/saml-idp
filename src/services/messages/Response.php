@@ -11,10 +11,8 @@ namespace flipbox\saml\idp\services\messages;
 
 use craft\base\Component;
 use craft\helpers\ConfigHelper;
-use flipbox\saml\core\events\RegisterAttributesTransformer;
-use flipbox\saml\core\exceptions\InvalidMessage;
+use flipbox\saml\idp\events\RegisterAttributesTransformer;
 use flipbox\saml\core\records\ProviderInterface;
-use flipbox\saml\core\transformers\AbstractResponseToUser;
 use flipbox\saml\idp\records\ProviderRecord as Provider;
 use flipbox\saml\idp\Saml;
 use flipbox\saml\idp\transformers\ResponseAssertion;
@@ -47,11 +45,19 @@ class Response extends Component
     const EVENT_ASSERTION_TRANSFORMATION = 'atAssertionTransformation';
     const DEFAULT_ATTRIBUTE_TRANSFORMER = ResponseAssertion::class;
 
+    /**
+     * @param AuthnRequest $authnRequest
+     * @param null $relayState
+     * @return ResponseMessage
+     * @throws \yii\base\InvalidConfigException
+     */
     public function create(AuthnRequest $authnRequest, $relayState = null)
     {
 
         /** @var Provider $idpProvider */
         $idpProvider = Saml::getInstance()->getProvider()->findOwn();
+
+        /** @var Provider $spProvider */
         $spProvider = Saml::getInstance()->getProvider()->findByEntityId(
             $authnRequest->getIssuer()->getValue()
         );
@@ -114,7 +120,9 @@ class Response extends Component
             )
         );
 
-
+        /**
+         * Add Subject Confirmation
+         */
         $subject->addSubjectConfirmation(
             $subjectConfirmation = new SubjectConfirmation()
         );
@@ -123,6 +131,9 @@ class Response extends Component
             \LightSaml\SamlConstants::CONFIRMATION_METHOD_BEARER
         );
 
+        /**
+         * Add Subject Confirmation Data
+         */
         $subjectConfirmation->setSubjectConfirmationData(
             $subjectConfirmationData = new SubjectConfirmationData()
         );
@@ -135,7 +146,7 @@ class Response extends Component
             );
 
         /**
-         * Conditions
+         * Add Conditions
          */
 
         $assertion->setConditions(
@@ -147,9 +158,12 @@ class Response extends Component
         );
 
         $conditions->setNotOnOrAfter(
-            new \DateTime('+1 MINUTE')
+            (new \DateTime('+1 MINUTE'))->getTimestamp()
         );
 
+        /**
+         * Add AuthnStatement
+         */
         $assertion->addItem(
             $authnStatement = new AuthnStatement()
         );
@@ -158,6 +172,9 @@ class Response extends Component
                 \Craft::$app->config->getGeneral()->userSessionDuration
             ) + (new \DateTime())->getTimestamp());
 
+        /**
+         * Add AuthnStatement attributes and AuthnContext
+         */
         $authnStatement->setAuthnInstant(new \DateTime())
             ->setSessionNotOnOrAfter(
                 $sessionEnd
@@ -174,6 +191,9 @@ class Response extends Component
 
         Factory::item(new $transformer($user), $assertion);
 
+        /**
+         * Sign Response
+         */
         $response->setSignature(
             new SignatureWriter(
                 (new X509Certificate())->loadPem(
@@ -187,6 +207,9 @@ class Response extends Component
         );
 
 
+        /**
+         * Encrypt Assertions
+         */
 //        if ($spProvider->encryptAssertions) {
 //            $this->encryptAssertion(
 //                $response->getFirstAssertion()
@@ -214,6 +237,10 @@ class Response extends Component
     }
 
 
+    /**
+     * @param Provider $providerRecord
+     * @return mixed|null|string
+     */
     public function getTransformer(Provider $providerRecord)
     {
         /**
@@ -237,6 +264,7 @@ class Response extends Component
     /**
      * @param AuthnRequest $authnRequest
      * @throws \flipbox\saml\core\exceptions\InvalidMetadata
+     * @throws \yii\base\InvalidConfigException
      */
     public function createAndSend(AuthnRequest $authnRequest)
     {
@@ -248,8 +276,8 @@ class Response extends Component
     }
 
     /**
-     * @throws InvalidMessage
      * @throws \flipbox\saml\core\exceptions\InvalidMetadata
+     * @throws \yii\base\InvalidConfigException
      */
     public function createAndSendFromSession()
     {
