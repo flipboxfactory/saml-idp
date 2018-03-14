@@ -35,7 +35,7 @@ use yii\base\Event;
 
 class Saml extends Plugin implements SamlPluginInterface
 {
-    use KeyChainModuleTrait, SamlCore;
+    use SamlCore;
 
     public function init()
     {
@@ -57,7 +57,6 @@ class Saml extends Plugin implements SamlPluginInterface
 
     public function initModules()
     {
-        $this->initKeyChain();
         $this->initCore();
     }
 

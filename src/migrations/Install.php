@@ -19,8 +19,6 @@ use yii\base\Module;
  */
 class Install extends AbstractInstall
 {
-    use MigrateKeyChain;
-
     /**
      * @inheritdoc
      */
