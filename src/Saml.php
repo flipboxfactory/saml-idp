@@ -13,12 +13,11 @@ use Craft;
 use craft\base\Plugin;
 use craft\console\Application as ConsoleApplication;
 use craft\web\User;
-use flipbox\keychain\traits\ModuleTrait as KeyChainModuleTrait;
 use flipbox\saml\core\models\SettingsInterface;
 use flipbox\saml\core\SamlPluginInterface;
 use flipbox\saml\core\services\messages\MetadataServiceInterface;
 use flipbox\saml\core\services\ProviderServiceInterface;
-use flipbox\saml\core\traits\SamlCore;
+use flipbox\saml\core\AbstractPlugin;
 use flipbox\saml\idp\models\Settings;
 use flipbox\saml\idp\services\bindings\HttpPost;
 use flipbox\saml\idp\services\Login;
@@ -33,16 +32,14 @@ use flipbox\saml\idp\services\ProviderIdentity;
 use flipbox\saml\idp\services\Session;
 use yii\base\Event;
 
-class Saml extends Plugin implements SamlPluginInterface
+class Saml extends AbstractPlugin implements SamlPluginInterface
 {
-    use SamlCore;
 
     public function init()
     {
         parent::init();
 
         $this->initComponents();
-        $this->initModules();
         $this->initEvents();
 
         // Switch target to console controllers
@@ -53,11 +50,6 @@ class Saml extends Plugin implements SamlPluginInterface
                 'keychain' => \flipbox\saml\idp\cli\KeyChain::class,
             ];
         }
-    }
-
-    public function initModules()
-    {
-        $this->initCore();
     }
 
     public function initComponents()

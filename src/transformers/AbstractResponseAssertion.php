@@ -9,7 +9,6 @@
 namespace flipbox\saml\idp\transformers;
 
 use craft\elements\User;
-use flipbox\saml\idp\Saml;
 use Flipbox\Transform\Scope;
 use Flipbox\Transform\Transformers\AbstractTransformer;
 use LightSaml\Model\Assertion\Assertion;

@@ -10,23 +10,12 @@ namespace flipbox\saml\idp\models;
 
 
 use craft\base\Model;
-use craft\elements\User;
-use craft\helpers\UrlHelper;
+use flipbox\saml\core\models\AbstractSettings;
 use flipbox\saml\core\models\SettingsInterface;
-use flipbox\saml\sp\Saml;
 use flipbox\saml\idp\services\Metadata;
-use LightSaml\ClaimTypes;
-use LightSaml\Model\Assertion\Assertion;
-use LightSaml\Model\Assertion\Attribute;
-use LightSaml\SamlConstants;
-use yii\base\InvalidConfigException;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
-use LightSaml\Credential\X509Certificate;
 
-class Settings extends Model implements SettingsInterface
+class Settings extends AbstractSettings implements SettingsInterface
 {
-    use \flipbox\saml\core\traits\Settings;
-
     /**
      * @var bool
      */
