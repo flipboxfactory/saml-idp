@@ -16,6 +16,7 @@ use craft\web\User;
 use flipbox\saml\core\models\SettingsInterface;
 use flipbox\saml\core\SamlPluginInterface;
 use flipbox\saml\core\services\messages\MetadataServiceInterface;
+use flipbox\saml\core\services\ProviderIdentityServiceInterface;
 use flipbox\saml\core\services\ProviderServiceInterface;
 use flipbox\saml\core\AbstractPlugin;
 use flipbox\saml\idp\models\Settings;
@@ -148,30 +149,6 @@ class Saml extends AbstractPlugin implements SamlPluginInterface
     public function getLogoutResponse()
     {
         return $this->get('logoutResponse');
-    }
-
-    /**
-     * @returns Provider
-     */
-    public function getProvider(): ProviderServiceInterface
-    {
-        return $this->get('provider');
-    }
-
-    /**
-     * @returns ProviderIdentity
-     */
-    public function getProviderIdentity()
-    {
-        return $this->get('providerIdentity');
-    }
-
-    /**
-     * @return Metadata
-     */
-    public function getMetadata(): MetadataServiceInterface
-    {
-        return $this->get('metadata');
     }
 
     /**

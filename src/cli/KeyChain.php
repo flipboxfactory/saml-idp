@@ -13,7 +13,7 @@ use flipbox\keychain\keypair\traits\OpenSSLCliUtil;
 use flipbox\saml\idp\Saml;
 use yii\console\Controller;
 use flipbox\keychain\keypair\traits\OpenSSL as OpenSSLTrait;
-use flipbox\keychain\keypair\traits\OpenSSLCli as OpenSSLCliTrait;
+use flipbox\keychain\keypair\traits\OpenSSL as OpenSSLCliTrait;
 
 class KeyChain extends Controller
 {

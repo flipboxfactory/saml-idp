@@ -36,10 +36,10 @@ class AuthnRequest extends Component
 
         if ($authnRequest->getSignature()) {
             if (
-                ! SecurityHelper::validSignature(
-                    $authnRequest,
-                    $provider->getMetadataModel()->getFirstSpSsoDescriptor()->getFirstKeyDescriptor(KeyDescriptor::USE_SIGNING)
-                )
+            ! SecurityHelper::validSignature(
+                $authnRequest,
+                $provider->getMetadataModel()->getFirstSpSsoDescriptor()->getFirstKeyDescriptor(KeyDescriptor::USE_SIGNING)
+            )
             ) {
                 throw new InvalidMessage("Invalid Message.");
             }
@@ -55,53 +55,10 @@ class AuthnRequest extends Component
     public function parseByRequest(\craft\web\Request $request): \LightSaml\Model\Protocol\AuthnRequest
     {
 
-
-
         if (! ($authnRequest instanceof \LightSaml\Model\Protocol\AuthnRequest)) {
             throw new InvalidMessage("Invalid Message.");
         }
 
         return $authnRequest;
     }
-
-    public function create(string $entityId = null)
-    {
-        if (! $entityId) {
-
-            /**
-             * @var \flipbox\saml\sp\models\Provider $provider
-             */
-            if (! $provider = Saml::getInstance()->getProvider()->findDefaultProvider()) {
-                return null;
-            }
-
-        } else {
-            $provider = Saml::getInstance()->getProvider()->findByString($entityId);
-        }
-
-        $location = $provider->getMetadata()->getFirstIdpSsoDescriptor()->getFirstSingleSignOnService()->getLocation();
-
-        /**
-         * @var $samlSettings Settings
-         */
-        $samlSettings = Saml::getInstance()->getSettings();
-        $authnRequest = new \LightSaml\Model\Protocol\AuthnRequest();
-
-        $authnRequest->setAssertionConsumerServiceURL(
-            Metadata::getLoginLocation()
-        )->setProtocolBinding(
-            $provider->getMetadata()->getFirstIdpSsoDescriptor()->getFirstSingleSignOnService()->getBinding()
-        )->setID(Helper::generateID())
-            ->setIssueInstant(new \DateTime())
-            ->setDestination($location)
-            ->setIssuer(new Issuer($samlSettings->getEntityId()));
-
-        //set signed assertions
-        if ($samlSettings->signAssertions) {
-            $this->signMessage($authnRequest);
-        }
-
-        return $authnRequest;
-    }
-
 }
