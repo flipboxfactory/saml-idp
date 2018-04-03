@@ -12,7 +12,7 @@ namespace flipbox\saml\idp\services;
 use craft\base\Component;
 use LightSaml\Model\Protocol\AuthnRequest;
 
-class Session extends Component
+class Session extends \flipbox\saml\core\services\Session
 {
 
     const AUTHNREQUEST_KEY = 'authnrequest.message';
