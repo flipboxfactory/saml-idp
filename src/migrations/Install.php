@@ -2,10 +2,6 @@
 
 namespace flipbox\saml\idp\migrations;
 
-use craft\db\Migration;
-use craft\records\User as UserRecord;
-use flipbox\keychain\records\KeyChainRecord;
-use flipbox\keychain\traits\MigrateKeyChain;
 use flipbox\saml\core\migrations\AbstractInstall;
 use flipbox\saml\idp\records\ProviderIdentityRecord;
 use flipbox\saml\idp\records\ProviderRecord;
@@ -32,7 +28,8 @@ class Install extends AbstractInstall
         return array_merge(
             parent::getProviderFields(),
             [
-                'useCpLogin'        => $this->boolean()->defaultValue(true)->notNull(),//->after(static::PROVIDER_AFTER_COLUMN),
+                'useCpLogin' => $this->boolean()->defaultValue(true)->notNull(),
+                'encryptAssertion' => $this->boolean()->defaultValue(true)->notNull(),
             ]
         );
     }
@@ -40,7 +37,7 @@ class Install extends AbstractInstall
     /**
      * @inheritdoc
      */
-    protected function getProviderTableName()
+    protected function getProviderTableName(): string
     {
         return ProviderRecord::tableName();
     }
@@ -48,7 +45,7 @@ class Install extends AbstractInstall
     /**
      * @inheritdoc
      */
-    protected function getIdentityTableName()
+    protected function getIdentityTableName(): string
     {
         return ProviderIdentityRecord::tableName();
     }

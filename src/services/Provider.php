@@ -1,19 +1,12 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dsmrt
- * Date: 1/12/18
- * Time: 10:44 PM
- */
 
 namespace flipbox\saml\idp\services;
 
 
-use flipbox\saml\core\records\AbstractProvider;
 use flipbox\saml\core\services\AbstractProviderService;
 use flipbox\saml\core\services\ProviderServiceInterface;
-use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
+use flipbox\saml\idp\traits\SamlPluginEnsured;
 
 /**
  * Class Provider
@@ -21,19 +14,13 @@ use flipbox\saml\idp\Saml;
  */
 class Provider extends AbstractProviderService implements ProviderServiceInterface
 {
-    /**
-     * @inheritdoc
-     */
-    public function getRecordClass()
-    {
-        return ProviderRecord::class;
-    }
+    use SamlPluginEnsured;
 
     /**
      * @inheritdoc
      */
-    public function findOwn(): AbstractProvider
+    public function findOwn()
     {
-        return $this->findByEntityId(Saml::getInstance()->getSettings()->getEntityId());
+        return $this->findByEntityId(Saml::getInstance()->getSettings()->getEntityId())->one();
     }
 }

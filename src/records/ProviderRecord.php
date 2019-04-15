@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: dsmrt
- * Date: 1/12/18
- * Time: 9:33 PM
- */
 
 namespace flipbox\saml\idp\records;
 
@@ -12,16 +6,55 @@ namespace flipbox\saml\idp\records;
 use flipbox\ember\records\traits\StateAttribute;
 use flipbox\saml\core\records\AbstractProvider;
 use flipbox\saml\core\records\ProviderInterface;
-use flipbox\saml\core\records\traits\ProviderFields;
+use flipbox\saml\idp\Saml;
 
+/**
+ * Class ProviderRecord
+ * @package flipbox\saml\idp\records
+ * @property boolean $useCpLogin
+ * @property boolean $encryptAssertion
+ */
 class ProviderRecord extends AbstractProvider implements ProviderInterface
 {
 
-    use StateAttribute, ProviderFields;
+    use StateAttribute;
 
     /**
      * The table alias
      */
     const TABLE_ALIAS = 'saml_idp_providers';
 
+    /**
+     * @inheritdoc
+     */
+    public function getLoginPath()
+    {
+        if ($this->type !== Saml::SP) {
+            return null;
+        }
+        return implode(
+            DIRECTORY_SEPARATOR,
+            [
+                Saml::getInstance()->getSettings()->loginRequestEndpoint,
+                $this->uid,
+            ]
+        );
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getLogoutPath()
+    {
+        if ($this->type !== Saml::SP) {
+            return null;
+        }
+        return implode(
+            DIRECTORY_SEPARATOR,
+            [
+                Saml::getInstance()->getSettings()->logoutRequestEndpoint,
+                $this->uid,
+            ]
+        );
+    }
 }

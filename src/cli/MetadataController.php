@@ -9,22 +9,16 @@
 namespace flipbox\saml\idp\cli;
 
 
-use craft\helpers\Console;
 use flipbox\keychain\keypair\traits\OpenSSL;
 use flipbox\keychain\keypair\traits\OpenSSLCliUtil;
-use flipbox\keychain\records\KeyChainRecord;
 use flipbox\saml\core\cli\AbstractMetadata;
 use flipbox\saml\core\records\ProviderInterface;
-use flipbox\saml\core\SamlPluginInterface;
-use flipbox\saml\idp\models\Provider;
 use flipbox\saml\idp\records\ProviderRecord;
-use flipbox\saml\idp\Saml;
-use yii\console\Controller;
-use yii\console\ExitCode;
+use flipbox\saml\idp\traits\SamlPluginEnsured;
 
-class Metadata extends AbstractMetadata
+class MetadataController extends AbstractMetadata
 {
-    use OpenSSL, OpenSSLCliUtil;
+    use OpenSSL, OpenSSLCliUtil, SamlPluginEnsured;
 
     /**
      * @var bool $force
@@ -76,11 +70,4 @@ class Metadata extends AbstractMetadata
     }
 
 
-    /**
-     * @return SamlPluginInterface
-     */
-    protected function getSamlPlugin(): SamlPluginInterface
-    {
-        return Saml::getInstance();
-    }
 }

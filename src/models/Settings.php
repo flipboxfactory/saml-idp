@@ -9,10 +9,8 @@
 namespace flipbox\saml\idp\models;
 
 
-use craft\base\Model;
 use flipbox\saml\core\models\AbstractSettings;
 use flipbox\saml\core\models\SettingsInterface;
-use flipbox\saml\idp\services\Metadata;
 
 class Settings extends AbstractSettings implements SettingsInterface
 {
@@ -42,6 +40,27 @@ class Settings extends AbstractSettings implements SettingsInterface
     public $groupAttributeNames = [
         'groups',
     ];
+
+    /**
+     * SubjectConfirmationData and Conditions datetimes
+     * https://stackoverflow.com/a/29546696/1590910
+     */
+
+    /**
+     * Start datetime to consume login response
+     * @see \DateTime::__construct
+     *
+     * @var string
+     */
+    public $messageNotBefore = 'now';
+
+    /**
+     * Expiration datetime to consume login response
+     * @see \DateTime::__construct
+     *
+     * @var string
+     */
+    public $messageNotOnOrAfter = '+10 MINUTES';
 
     /**
      * Key Value store that maps the Response name (the array key) with
@@ -94,9 +113,9 @@ class Settings extends AbstractSettings implements SettingsInterface
 
     public $responseAttributeMap = [
         //craft user/response assertion attribute name mapping
-        'email'     => 'email',
+        'email' => 'email',
         'firstName' => 'firstName',
-        'lastName'  => 'lastName',
+        'lastName' => 'lastName',
 
 
     ];

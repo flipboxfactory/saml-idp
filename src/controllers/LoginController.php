@@ -9,14 +9,15 @@
 namespace flipbox\saml\idp\controllers;
 
 
-use craft\web\Controller;
-use flipbox\saml\idp\Saml;
 use Craft;
-use flipbox\saml\idp\services\bindings\Factory;
-use yii\web\HttpException;
+use flipbox\saml\core\controllers\messages\AbstractController;
+use flipbox\saml\idp\Saml;
+use flipbox\saml\idp\traits\SamlPluginEnsured;
+use flipbox\saml\sp\records\ProviderRecord;
 
-class LoginController extends Controller
+class LoginController extends AbstractController
 {
+    use SamlPluginEnsured;
 
     protected $allowAnonymous = [
         'actionIndex',
@@ -31,6 +32,7 @@ class LoginController extends Controller
      */
     public function beforeAction($action)
     {
+        $this->logRequest();
         return true;
     }
 
@@ -41,25 +43,56 @@ class LoginController extends Controller
      * @throws \flipbox\saml\core\exceptions\InvalidMetadata
      * @throws \flipbox\saml\core\exceptions\InvalidSignature
      */
-    public function actionRequest()
+    public function actionIndex()
     {
 
-        $authnRequest = Factory::receive(Craft::$app->request);
+        $authnRequest = Saml::getInstance()->getBindingFactory()->receive(
+            Craft::$app->request
+        );
 
         Saml::getInstance()->getAuthnRequest()->isValid($authnRequest);
 
+        /**
+         * Check relay state
+         */
+        if ($relayState = \Craft::$app->request->getParam('RelayState')) {
+
+            try {
+                $relayStateDecoded = base64_decode($relayState);
+                $authnRequest->setRelayState($relayState);
+                Saml::info('RelayState: ' . $relayStateDecoded);
+                Saml::info('RelayState from authnRequest: ' . $authnRequest->getRelayState());
+            } catch (\Exception $e) {
+                Saml::warning(
+                    sprintf(
+                        'RelayState must be base64 encoded: %s',
+                        is_string($relayState) ? $relayState : ''
+                    )
+                );
+            }
+        }
+
         if ($user = Craft::$app->getUser()->getIdentity()) {
+
             //create response and send back to the sp
-            Saml::getInstance()->getResponse()->createAndSend($authnRequest);
+            $response = Saml::getInstance()->getResponse()->create($authnRequest);
+
+            /** @var ProviderRecord $spProvider */
+            $spProvider = Saml::getInstance()->getProvider()->findByEntityId(
+                $authnRequest->getIssuer()->getValue()
+            )->one();
+
+            Saml::getInstance()->getBindingFactory()->send($response, $spProvider);
             return;
         }
 
         //save to session and redirect to login
         Saml::getInstance()->getSession()->setAuthnRequest($authnRequest);
 
-        return $this->redirect(
+        $this->redirect(
             Craft::$app->config->general->getLoginPath()
         );
+        return;
     }
 
 }

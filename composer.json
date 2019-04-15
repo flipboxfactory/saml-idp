@@ -1,7 +1,7 @@
 {
   "name": "flipboxfactory/saml-idp",
-  "description": "SAML SSO Identity Provider",
-  "version": "1.0.0-rc.1",
+  "description": "SAML Identity Provider",
+  "version": "1.0.0",
   "type": "craft-plugin",
   "keywords": [
     "cms",
@@ -10,12 +10,13 @@
     "sso",
     "idp",
     "identity provider",
+    "federated authentication",
     "yii2"
   ],
   "require": {
-    "craftcms/cms": "^3.0.0-RC15",
-    "flipboxfactory/saml-core": "^1.0.0-rc.1",
-    "flipboxfactory/keychain": "1.0.0-beta.1"
+    "craftcms/cms": "^3.0.0",
+    "flipboxfactory/saml-core": "^2.0.0",
+    "flipboxfactory/keychain": "1.0.0"
   },
   "require-dev": {
     "phpunit/phpunit": "^5.0",
@@ -39,9 +40,9 @@
     "rss":    "https://github.com/flipboxfactory/saml-idp/commits/master.atom"
   },
   "extra": {
-    "name": "SAML SSO IDP",
-    "version":"1.0.0-rc.1",
-    "schemaVersion":"1.0.0-rc.1",
+    "name": "SAML Identity Provider",
+    "version":"1.0.0",
+    "schemaVersion":"1.0.0",
     "handle": "saml-idp",
     "class": "flipbox\\saml\\idp\\Saml",
     "developer": "Flipbox Digital",

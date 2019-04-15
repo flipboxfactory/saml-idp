@@ -12,10 +12,8 @@ namespace flipbox\saml\idp\services\messages;
 use craft\base\Component;
 use flipbox\saml\core\exceptions\InvalidMessage;
 use flipbox\saml\core\helpers\SecurityHelper;
-use flipbox\saml\idp\models\Settings;
+use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
-use LightSaml\Helper;
-use LightSaml\Model\Assertion\Issuer;
 use LightSaml\Model\Metadata\KeyDescriptor;
 
 class AuthnRequest extends Component
@@ -28,9 +26,10 @@ class AuthnRequest extends Component
      */
     public function isValid(\LightSaml\Model\Protocol\AuthnRequest $authnRequest)
     {
+        /** @var ProviderRecord $provider */
         if (! ($provider = Saml::getInstance()->getProvider()->findByEntityId(
             $authnRequest->getIssuer()->getValue()
-        ))) {
+        )->one())) {
             throw new InvalidMessage("Invalid Message.");
         }
 
@@ -55,10 +54,10 @@ class AuthnRequest extends Component
     public function parseByRequest(\craft\web\Request $request): \LightSaml\Model\Protocol\AuthnRequest
     {
 
-        if (! ($authnRequest instanceof \LightSaml\Model\Protocol\AuthnRequest)) {
+        if (! ($request instanceof \LightSaml\Model\Protocol\AuthnRequest)) {
             throw new InvalidMessage("Invalid Message.");
         }
 
-        return $authnRequest;
+        return $request;
     }
 }
