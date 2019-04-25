@@ -8,10 +8,9 @@
 
 namespace flipbox\saml\idp\services;
 
-use flipbox\saml\core\SamlPluginInterface;
 use flipbox\saml\core\services\AbstractProviderIdentityService;
 use flipbox\saml\idp\records\ProviderRecord;
-use flipbox\saml\idp\Saml;
+use flipbox\saml\sp\traits\SamlPluginEnsured;
 
 
 /**
@@ -20,13 +19,7 @@ use flipbox\saml\idp\Saml;
  */
 class ProviderIdentity extends AbstractProviderIdentityService
 {
-    /**
-     * @inheritdoc
-     */
-    protected function getSamlPlugin(): SamlPluginInterface
-    {
-        return Saml::getInstance();
-    }
+    use SamlPluginEnsured;
 
     /**
      * @inheritdoc

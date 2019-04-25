@@ -11,9 +11,11 @@ namespace flipbox\saml\idp\controllers;
 
 use Craft;
 use flipbox\saml\core\controllers\messages\AbstractController;
+use flipbox\saml\core\services\bindings\Factory;
 use flipbox\saml\idp\Saml;
 use flipbox\saml\idp\traits\SamlPluginEnsured;
 use flipbox\saml\sp\records\ProviderRecord;
+use SAML2\AuthnRequest;
 
 class LoginController extends AbstractController
 {
@@ -32,7 +34,6 @@ class LoginController extends AbstractController
      */
     public function beforeAction($action)
     {
-        $this->logRequest();
         return true;
     }
 
@@ -46,9 +47,8 @@ class LoginController extends AbstractController
     public function actionIndex()
     {
 
-        $authnRequest = Saml::getInstance()->getBindingFactory()->receive(
-            Craft::$app->request
-        );
+        /** @var AuthnRequest $authnRequest */
+        $authnRequest = Factory::receive();
 
         Saml::getInstance()->getAuthnRequest()->isValid($authnRequest);
 

@@ -8,7 +8,6 @@ use flipbox\saml\core\services\messages\SamlResponseInterface;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\records\ProviderRecord as Provider;
 use flipbox\saml\idp\Saml;
-use flipbox\saml\idp\transformers\ResponseAssertion;
 use LightSaml\Credential\KeyHelper;
 use LightSaml\Credential\X509Certificate;
 use LightSaml\Helper;
@@ -22,7 +21,7 @@ use LightSaml\Model\Protocol\StatusResponse;
 use LightSaml\Model\XmlDSig\SignatureWriter;
 use LightSaml\SamlConstants;
 
-class Response extends Component implements SamlResponseInterface
+class Response extends Component
 {
 
     const CONSENT_IMPLICIT = 'urn:oasis:names:tc:SAML:2.0:consent:current-implicit';
@@ -34,7 +33,7 @@ class Response extends Component implements SamlResponseInterface
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      */
-    public function create(AbstractRequest $samlMessage, array $config = []): StatusResponse
+    public function create(AbstractRequest $samlMessage): StatusResponse
     {
         /** @var AuthnRequest $authnRequest */
         $authnRequest = $samlMessage;
