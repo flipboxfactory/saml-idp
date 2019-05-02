@@ -6,128 +6,89 @@ namespace flipbox\saml\idp\services\messages;
 use craft\base\Component;
 use craft\elements\User;
 use craft\helpers\ConfigHelper;
-use flipbox\keychain\KeyChain;
-use flipbox\keychain\records\KeyChainRecord;
 use flipbox\saml\core\helpers\ProviderHelper;
+use flipbox\saml\core\helpers\SecurityHelper;
+use flipbox\saml\idp\models\Settings;
 use flipbox\saml\idp\records\ProviderRecord;
-use flipbox\saml\idp\Saml;
-use LightSaml\Credential\KeyHelper;
-use LightSaml\Credential\X509Certificate;
-use LightSaml\Model\Assertion\Assertion;
-use LightSaml\Model\Assertion\Attribute;
-use LightSaml\Model\Assertion\AttributeStatement;
-use LightSaml\Model\Assertion\AuthnContext;
-use LightSaml\Model\Assertion\AuthnStatement;
-use LightSaml\Model\Assertion\Conditions;
-use LightSaml\Model\Assertion\EncryptedAssertionWriter;
-use LightSaml\Model\Assertion\NameID;
-use LightSaml\Model\Assertion\Subject;
-use LightSaml\Model\Assertion\SubjectConfirmation;
-use LightSaml\Model\Assertion\SubjectConfirmationData;
-use LightSaml\Model\Protocol\AuthnRequest;
-use LightSaml\Model\Protocol\Response as ResponseMessage;
-use LightSaml\Model\XmlDSig\SignatureWriter;
-use LightSaml\SamlConstants;
+use SAML2\Assertion;
+use SAML2\AuthnRequest;
+use SAML2\Constants;
+use SAML2\EncryptedAssertion;
+use SAML2\Response as ResponseMessage;
+use SAML2\XML\saml\NameID;
+use SAML2\XML\saml\SubjectConfirmation;
+use SAML2\XML\saml\SubjectConfirmationData;
 
 class ResponseAssertion extends Component
 {
-    /**
-     * @param AuthnRequest $authnRequest
-     * @param ResponseMessage $response
-     * @param ProviderRecord $spProvider
-     * @param ProviderRecord $idpProvider
-     * @return Assertion
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     */
     public function create(
+        User $user,
         AuthnRequest $authnRequest,
         ResponseMessage $response,
-        ProviderRecord $spProvider,
-        ProviderRecord $idpProvider
+        ProviderRecord $identityProvider,
+        ProviderRecord $serviceProvider,
+        Settings $settings
     )
     {
-        /**
-         * Get User
-         */
-        $user = $this->getUser();
+        $assertion = new Assertion();
 
-        /**
-         * Add Assertion
-         */
-        $response->addAssertion(
-            $assertion = new Assertion()
-        );
-
-        /**
-         * Reuse the set issuer
-         */
         $assertion->setIssuer(
             $response->getIssuer()
         );
 
-        /**
-         * Subject
-         */
-        $assertion->setSubject(
-            $this->createSubject($authnRequest, $user)
+
+        $assertion->setSubjectConfirmation([
+            $this->createSubjectConfirmation(
+                $authnRequest,
+                $user,
+                $settings
+            ),
+        ]);
+
+        $this->createConditions($assertion, $settings);
+
+
+        $this->createAuthnStatement($assertion);
+
+
+        $this->setAssertionAttributes(
+            $user,
+            $assertion,
+            $identityProvider,
+            $settings
         );
 
-        /**
-         * Conditions
-         */
-        $assertion->setConditions(
-            $this->createConditions()
-        );
+        $firstDescriptor = $serviceProvider->spSsoDescriptors()[0];
 
-        /**
-         * AuthnStatement
-         */
-        $assertion->addItem(
-            $this->createAuthnStatement()
-        );
-
-        /**
-         * Attributes
-         */
-        $assertion->addItem(
-            $this->createAttributeStatement(
-                $user
-            )
-        );
-
-        /**
-         * Sign Assertions
-         */
-        if ($spProvider->getMetadataModel()->getFirstSpSsoDescriptor()->getWantAssertionsSigned()) {
-            $assertion->setSignature(
-                new SignatureWriter(
-                    (new X509Certificate())->loadPem(
-                        $idpProvider->getKeychain()->one()->getDecryptedCertificate()
-                    ),
-                    KeyHelper::createPrivateKey(
-                        $idpProvider->getKeychain()->one()->getDecryptedKey(),
-                        ''
-                    )
-                )
+        // Sign Assertions
+        if ($firstDescriptor->wantAssertionsSigned()) {
+            $assertion->setSignatureKey(
+                $identityProvider->signingXMLSecurityKey()
             );
         }
 
-        /**
-         * Encrypt Assertions
-         */
 
-        if (Saml::getInstance()->getSettings()->encryptAssertions) {
-            $response->addEncryptedAssertion(
-                $this->createEncryptAssertion(
-                    $assertion,
-                    $spProvider
-                )
+        // Encrypt Assertions
+        if ($serviceProvider->encryptAssertions) {
+            $unencrypted = $assertion;
+
+            $unencrypted->setEncryptionKey(
+                $serviceProvider->encryptionKey()
             );
-        } else {
-            //default
-            $response->addAssertion($assertion);
+//            $assertion->setRequiredEncAttributes(true);
+
+            $assertion = new EncryptedAssertion();
+            $assertion->setAssertion($unencrypted,
+                $serviceProvider->encryptionKey()
+            );
+
         }
+
+        $response->setAssertions(
+            [
+                $assertion,
+            ]
+        );
 
         return $assertion;
     }
@@ -135,12 +96,15 @@ class ResponseAssertion extends Component
     /**
      * @param AuthnRequest $authnRequest
      * @param User $user
-     * @return Subject
+     * @return SubjectConfirmation
      * @throws \Exception
      */
-    protected function createSubject(AuthnRequest $authnRequest, User $user)
+    protected function createSubjectConfirmation(
+        AuthnRequest $authnRequest,
+        User $user,
+        Settings $settings
+    )
     {
-        $subject = new Subject();
         /**
          * Subject Confirmation
          * Reference: https://stackoverflow.com/a/29546696/1590910
@@ -153,49 +117,48 @@ class ResponseAssertion extends Component
          * those in <Conditions>.
          */
 
-        /**
-         * Add Subject Confirmation
-         */
-        $subject->addSubjectConfirmation(
-            $subjectConfirmation = new SubjectConfirmation()
-        );
+        $subjectConfirmation = new SubjectConfirmation();
 
         $subjectConfirmation->setMethod(
-            \LightSaml\SamlConstants::CONFIRMATION_METHOD_BEARER
+            Constants::CM_BEARER
         );
 
-        /**
-         * Add Subject Confirmation Data
-         */
+
+        // Add Subject Confirmation Data
         $subjectConfirmation->setSubjectConfirmationData(
             $subjectConfirmationData = new SubjectConfirmationData()
         );
 
-        $subjectConfirmationData->setInResponseTo($authnRequest->getID())
-            ->setNotOnOrAfter(
-                new \DateTime(
-                    Saml::getInstance()->getSettings()->messageNotOnOrAfter
-                )
-            )->setRecipient(
-                $authnRequest->getAssertionConsumerServiceURL()
-            );
-
-        $subject->add
-        $subject->setNameID(
-            new NameID(
-                $user->username,
-                SamlConstants::NAME_ID_FORMAT_UNSPECIFIED
-            )
+        $subjectConfirmationData->setInResponseTo($authnRequest->getId());
+        $subjectConfirmationData->setNotOnOrAfter(
+            (new \DateTime(
+                $settings->messageNotOnOrAfter
+            ))->getTimestamp()
         );
 
-        return $subject;
+        $subjectConfirmationData->setRecipient(
+            $authnRequest->getAssertionConsumerServiceURL()
+        );
+
+        $subjectConfirmation->setNameID(
+            $nameId = new NameID()
+        );
+
+        // TODO - Configuration based NameIds
+        $nameId->setFormat(Constants::NAMEID_UNSPECIFIED);
+        $nameId->setValue($user->username);
+
+        return $subjectConfirmation;
     }
 
     /**
-     * @return Conditions
+     * @param Assertion $assertion
      * @throws \Exception
      */
-    protected function createConditions()
+    protected function createConditions(
+        Assertion $assertion,
+        Settings $settings
+    )
     {
         /**
          * Conditions
@@ -206,37 +169,27 @@ class ResponseAssertion extends Component
          * session on an SP to extend beyond this point in time though.
          */
 
-        $conditions = new Conditions();
-
-        $conditions->setNotBefore(
-            new \DateTime(
-                Saml::getInstance()->getSettings()->messageNotBefore
-            )
-        );
-
-        $conditions->setNotOnOrAfter(
+        $assertion->setNotBefore(
             (new \DateTime(
-                Saml::getInstance()->getSettings()->messageNotOnOrAfter
+                $settings->messageNotBefore
             ))->getTimestamp()
         );
 
-        return $conditions;
+        $assertion->setNotOnOrAfter(
+            (new \DateTime(
+                $settings->messageNotOnOrAfter
+            ))->getTimestamp()
+        );
+
     }
 
     /**
-     * @return AuthnStatement
+     * @param Assertion $assertion
      * @throws \yii\base\Exception
      * @throws \yii\base\InvalidConfigException
      */
-    protected function createAuthnStatement()
+    protected function createAuthnStatement(Assertion $assertion)
     {
-
-        /**
-         * Add AuthnStatement
-         */
-        $authnStatement = new AuthnStatement();
-
-
         /**
          * Reference: https://stackoverflow.com/a/29546696/1590910
          *
@@ -262,83 +215,62 @@ class ResponseAssertion extends Component
         /**
          * Add AuthnStatement attributes and AuthnContext
          */
-        $authnStatement->setAuthnInstant(new \DateTime())
-            ->setSessionNotOnOrAfter(
-                $sessionEnd
-            )->setSessionIndex(
-            /**
-             * Just mask the session id
-             */
-                \Craft::$app->security->hashData(
-                    \Craft::$app->session->getId()
-                )
-            )->setAuthnContext(
-                $authnContext = new AuthnContext()
-            );
-        $authnContext->setAuthnContextClassRef(
-            SamlConstants::AUTHN_CONTEXT_PASSWORD
+        $assertion->setAuthnInstant((new \DateTime())->getTimestamp());
+        $assertion->setSessionNotOnOrAfter(
+            $sessionEnd->getTimestamp()
+        );
+        $assertion->setSessionIndex(
+
+        // Just mask the session id
+
+            \Craft::$app->security->hashData(
+                \Craft::$app->session->getId()
+            )
         );
 
-        return $authnStatement;
+        $assertion->setAuthnContextClassRef(
+            Constants::AC_PASSWORD
+        );
+
     }
 
-    protected function createAttributeStatement(
-        User $user
+    protected function setAssertionAttributes(
+        User $user,
+        Assertion $assertion,
+        ProviderRecord $serviceProvider,
+        Settings $settings
     )
     {
 
-        $attributeStatement = new AttributeStatement();
+        // set on the assertion and the subject confirmations
+        $assertion->setNameID(
+            $nameId = new NameID()
+        );
 
-        /**
-         * Check the provider first
-         */
+        // TODO - Configuration based NameIds
+        $nameId->setFormat(Constants::NAMEID_UNSPECIFIED);
+        $nameId->setValue($user->username);
+
+
+        // Check the provider first
         $attributeMap =
-//            ProviderHelper::providerMappingToKeyValue(
-//                $idpProvider = Saml::getInstance()->getProvider()->findByEntityId(
-//                    $response->getIssuer()->getValue()
-//                )->one()
-//            ) ?:
-            Saml::getInstance()->getSettings()->responseAttributeMap;
+            ProviderHelper::providerMappingToKeyValue(
+                $serviceProvider
+            ) ?:
+                $settings->responseAttributeMap;
 
-        foreach ($attributeMap as $craftProperty => $attributeName) {
+        $attributes = [];
+        foreach ($attributeMap as $attributeName => $craftProperty) {
 
-            $this->assignProperty(
+            $attributes[$attributeName] = $this->assignProperty(
                 $user,
-                $attributeStatement,
                 $attributeName,
                 $craftProperty
             );
 
         }
 
-        return $attributeStatement;
-    }
-
-    /**
-     * @param Assertion $assertion
-     * @param ProviderRecord $spProvider
-     * @return EncryptedAssertionWriter
-     */
-    protected function createEncryptAssertion(
-        Assertion $assertion,
-        ProviderRecord $spProvider
-    )
-    {
-        /** @var KeyChainRecord $keypair */
-        $keypair = $spProvider->getKeychain()->one();
-
-        $certificate = (new X509Certificate())->setData(
-            $keypair->getDecryptedCertificate()
-        );
-        $encryptedAssertion = new EncryptedAssertionWriter();
-        $encryptedAssertion->encrypt(
-            $assertion,
-            KeyHelper::createPublicKey(
-                $certificate
-            )
-        );
-
-        return $encryptedAssertion;
+        $assertion->setAttributes($attributes);
     }
 
     /**
@@ -347,26 +279,19 @@ class ResponseAssertion extends Component
 
     /**
      * @param User $user
-     * @param Assertion $assertion
      * @param $attributeName
      * @param $craftProperty
-     * @return AttributeStatement
+     * @return array
      */
     protected function assignProperty(
         User $user,
-        AttributeStatement $attributeStatement,
         $attributeName,
         $craftProperty
     )
     {
-        $attribute = $attributeStatement->addAttribute(
-            new Attribute(
-                $attributeName,
-                $user->{$craftProperty}
-            )
-        );
-
-        return $attribute;
+        return [
+            $attributeName => $user->{$craftProperty},
+        ];
 
     }
 

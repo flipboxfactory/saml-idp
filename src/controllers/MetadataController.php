@@ -9,20 +9,14 @@
 namespace flipbox\saml\idp\controllers;
 
 
-use craft\web\Controller;
 use flipbox\saml\core\controllers\AbstractMetadataController;
-use flipbox\saml\core\helpers\SerializeHelper;
-use flipbox\saml\core\SamlPluginInterface;
 use flipbox\saml\idp\records\ProviderRecord;
-use flipbox\saml\idp\Saml;
+use flipbox\saml\idp\traits\SamlPluginEnsured;
 
 class MetadataController extends AbstractMetadataController
 {
+    use SamlPluginEnsured;
 
-    protected function getSamlPlugin(): SamlPluginInterface
-    {
-        return Saml::getInstance();
-    }
 
     protected function getProviderRecord()
     {

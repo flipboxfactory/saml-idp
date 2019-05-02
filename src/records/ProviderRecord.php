@@ -4,6 +4,7 @@ namespace flipbox\saml\idp\records;
 
 
 use flipbox\ember\records\traits\StateAttribute;
+use flipbox\saml\core\models\SettingsInterface;
 use flipbox\saml\core\records\AbstractProvider;
 use flipbox\saml\core\records\ProviderInterface;
 use flipbox\saml\idp\Saml;
@@ -12,7 +13,7 @@ use flipbox\saml\idp\Saml;
  * Class ProviderRecord
  * @package flipbox\saml\idp\records
  * @property boolean $useCpLogin
- * @property boolean $encryptAssertion
+ * @property boolean $encryptAssertions
  */
 class ProviderRecord extends AbstractProvider implements ProviderInterface
 {
@@ -29,7 +30,7 @@ class ProviderRecord extends AbstractProvider implements ProviderInterface
      */
     public function getLoginPath()
     {
-        if ($this->type !== Saml::SP) {
+        if ($this->type !== SettingsInterface::SP) {
             return null;
         }
         return implode(
@@ -46,7 +47,7 @@ class ProviderRecord extends AbstractProvider implements ProviderInterface
      */
     public function getLogoutPath()
     {
-        if ($this->type !== Saml::SP) {
+        if ($this->type !== SettingsInterface::SP) {
             return null;
         }
         return implode(

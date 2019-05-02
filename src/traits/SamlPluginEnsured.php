@@ -6,19 +6,28 @@
 
 namespace flipbox\saml\idp\traits;
 
-use flipbox\saml\core\SamlPluginInterface;
-use flipbox\saml\core\traits\EnsureSamlPlugin;
+use flipbox\saml\core\AbstractPlugin;
+use flipbox\saml\core\EnsureSAMLPlugin;
 use flipbox\saml\idp\Saml;
 
 trait SamlPluginEnsured
 {
 
     /**
-     * @see EnsureSamlPlugin
-     * @return SamlPluginInterface
+     * @see EnsureSAMLPlugin
+     * @return AbstractPlugin
      */
-    protected function getSamlPlugin(): SamlPluginInterface
+    public function getPlugin(): AbstractPlugin
     {
         return Saml::getInstance();
     }
+
+    /**
+     *
+     */
+    public function loadContainer()
+    {
+        $this->getPlugin()->loadSaml2Container();
+    }
 }
+

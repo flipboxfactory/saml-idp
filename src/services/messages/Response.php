@@ -4,106 +4,123 @@ namespace flipbox\saml\idp\services\messages;
 
 
 use craft\base\Component;
-use flipbox\saml\core\services\messages\SamlResponseInterface;
+use craft\elements\User;
+use flipbox\saml\core\helpers\MessageHelper;
+use flipbox\saml\core\services\bindings\Factory;
+use flipbox\saml\idp\models\Settings;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\records\ProviderRecord as Provider;
 use flipbox\saml\idp\Saml;
-use LightSaml\Credential\KeyHelper;
-use LightSaml\Credential\X509Certificate;
-use LightSaml\Helper;
-use LightSaml\Model\Assertion\Issuer;
-use LightSaml\Model\Protocol\AbstractRequest;
-use LightSaml\Model\Protocol\AuthnRequest;
-use LightSaml\Model\Protocol\Response as ResponseMessage;
-use LightSaml\Model\Protocol\Status;
-use LightSaml\Model\Protocol\StatusCode;
-use LightSaml\Model\Protocol\StatusResponse;
-use LightSaml\Model\XmlDSig\SignatureWriter;
-use LightSaml\SamlConstants;
+use SAML2\AuthnRequest;
+use SAML2\Constants;
+use SAML2\Response as ResponseMessage;
 
 class Response extends Component
 {
 
     const CONSENT_IMPLICIT = 'urn:oasis:names:tc:SAML:2.0:consent:current-implicit';
 
-    /**
-     * @param AbstractRequest $samlMessage
-     * @param array $config
-     * @return StatusResponse
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function create(AbstractRequest $samlMessage): StatusResponse
+    public function create(
+        User $user,
+        AuthnRequest $authnRequest,
+        Provider $identityProvider,
+        Provider $serviceProvider,
+        Settings $settings
+    )
     {
-        /** @var AuthnRequest $authnRequest */
-        $authnRequest = $samlMessage;
-
-        /** @var Provider $idpProvider */
-        $idpProvider = Saml::getInstance()->getProvider()->findOwn();
-
-        /** @var Provider $spProvider */
-        $spProvider = Saml::getInstance()->getProvider()->findByEntityId(
-            $authnRequest->getIssuer()->getValue()
+        $serviceProvider = Saml::getInstance()->getProvider()->findByEntityId(
+            MessageHelper::getIssuer($authnRequest->getIssuer())
         )->one();
 
-        $response = $this->createGeneral($authnRequest, $idpProvider);
+        $response = $this->createGeneral($authnRequest, $identityProvider, $serviceProvider);
 
         Saml::getInstance()->getResponseAssertion()->create(
+            $user,
             $authnRequest,
             $response,
-            $spProvider,
-            $idpProvider
+            $identityProvider,
+            $serviceProvider,
+            $settings
         );
 
-        /**
-         * Sign Response
-         */
-        $response->setSignature(
-            new SignatureWriter(
-                (new X509Certificate())->loadPem(
-                    $idpProvider->getKeychain()->one()->getDecryptedCertificate()
-                ),
-                KeyHelper::createPrivateKey(
-                    $idpProvider->getKeychain()->one()->getDecryptedKey(),
-                    ''
-                )
-            )
+
+        $response->setSignatureKey(
+            $identityProvider->keychainPrivateXmlSecurityKey()
         );
 
         return $response;
     }
 
     /**
-     * @param ResponseMessage $response
      * @param AuthnRequest $authnRequest
-     * @param ProviderRecord $idpProvider
+     * @param Provider $identityProvider
+     * @return ResponseMessage
      * @throws \Exception
      */
-    protected function createGeneral(AuthnRequest $authnRequest, ProviderRecord $idpProvider)
+    protected function createGeneral(AuthnRequest $authnRequest, Provider $identityProvider, Provider $serviceProvider)
     {
+
+        $acsService = $serviceProvider->firstSpAcsService(Constants::BINDING_HTTP_POST) ?? $serviceProvider->firstSpAcsService();
         $response = new ResponseMessage();
         $response->setIssuer(
-            new Issuer($idpProvider->entityId)
-        )
-            ->setID(Helper::generateID())
-            ->setDestination(
-                $authnRequest->getAssertionConsumerServiceURL()
-            )->setConsent(static::CONSENT_IMPLICIT)
-            ->setInResponseTo(
-                $authnRequest->getID()
-            )->setStatus(
-                new Status(
-                    new StatusCode(SamlConstants::STATUS_SUCCESS
-                    )
-                )
-            )->setVersion(SamlConstants::VERSION_20)
-            ->setIssueInstant(
-                new \DateTime()
-            )->setRelayState(
-                $authnRequest->getRelayState()
-            );
+            $identityProvider->entityId
+        );
+
+        $response->setId($requestId = MessageHelper::generateId());
+        $response->setDestination(
+            $authnRequest->getAssertionConsumerServiceURL() ?? $acsService->getLocation()
+        );
+        $response->setConsent(static::CONSENT_IMPLICIT);
+        $response->setInResponseTo(
+            $authnRequest->getId()
+        );
+        $response->setStatus(
+            [
+                'Code' => Constants::STATUS_SUCCESS,
+            ]
+        );
+        $response->setIssueInstant(
+            (new \DateTime())->getTimestamp()
+        );
+        $response->setRelayState(
+            $authnRequest->getRelayState()
+        );
 
         return $response;
     }
 
+
+    /**
+     * @throws \flipbox\saml\core\exceptions\InvalidMetadata
+     */
+    public function createAndSendFromSession()
+    {
+        if (! $authnRequest = Saml::getInstance()->getSession()->getAuthnRequest()) {
+            return;
+        }
+
+        if (! $user = \Craft::$app->getUser()->getIdentity()) {
+            return;
+        }
+
+        // load our container
+        Saml::getInstance()->loadSaml2Container();
+
+        /** @var ProviderRecord $serviceProvider */
+        $serviceProvider = Saml::getInstance()->getProvider()->findByEntityId(
+            MessageHelper::getIssuer($authnRequest->getIssuer())
+        )->one();
+
+        $identityProvider = Saml::getInstance()->getProvider()->findOwn();
+
+        $response = $this->create(
+            $user,
+            $authnRequest,
+            $identityProvider,
+            $serviceProvider,
+            Saml::getInstance()->getSettings()
+        );
+
+        Factory::send($response, $serviceProvider);
+    }
 }

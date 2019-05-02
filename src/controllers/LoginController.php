@@ -11,10 +11,11 @@ namespace flipbox\saml\idp\controllers;
 
 use Craft;
 use flipbox\saml\core\controllers\messages\AbstractController;
+use flipbox\saml\core\helpers\MessageHelper;
 use flipbox\saml\core\services\bindings\Factory;
+use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
 use flipbox\saml\idp\traits\SamlPluginEnsured;
-use flipbox\saml\sp\records\ProviderRecord;
 use SAML2\AuthnRequest;
 
 class LoginController extends AbstractController
@@ -23,7 +24,6 @@ class LoginController extends AbstractController
 
     protected $allowAnonymous = [
         'actionIndex',
-        'actionRequest',
     ];
 
     public $enableCsrfValidation = false;
@@ -38,11 +38,8 @@ class LoginController extends AbstractController
     }
 
     /**
-     * @return void|\yii\web\Response
-     * @throws \Exception
      * @throws \flipbox\saml\core\exceptions\InvalidMessage
      * @throws \flipbox\saml\core\exceptions\InvalidMetadata
-     * @throws \flipbox\saml\core\exceptions\InvalidSignature
      */
     public function actionIndex()
     {
@@ -74,15 +71,24 @@ class LoginController extends AbstractController
 
         if ($user = Craft::$app->getUser()->getIdentity()) {
 
-            //create response and send back to the sp
-            $response = Saml::getInstance()->getResponse()->create($authnRequest);
-
-            /** @var ProviderRecord $spProvider */
-            $spProvider = Saml::getInstance()->getProvider()->findByEntityId(
-                $authnRequest->getIssuer()->getValue()
+            /** @var ProviderRecord $serviceProvider */
+            $serviceProvider = Saml::getInstance()->getProvider()->findByEntityId(
+                MessageHelper::getIssuer($authnRequest->getIssuer())
             )->one();
 
-            Saml::getInstance()->getBindingFactory()->send($response, $spProvider);
+            $identityProvider = Saml::getInstance()->getProvider()->findOwn();
+
+            //create response and send back to the sp
+            $response = Saml::getInstance()->getResponse()->create(
+                $user,
+                $authnRequest,
+                $identityProvider,
+                $serviceProvider,
+                Saml::getInstance()->getSettings()
+
+            );
+
+            Factory::send($response, $serviceProvider);
             return;
         }
 
