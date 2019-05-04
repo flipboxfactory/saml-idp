@@ -11,6 +11,7 @@ namespace flipbox\saml\idp\models;
 
 use flipbox\saml\core\models\AbstractSettings;
 use flipbox\saml\core\models\SettingsInterface;
+use flipbox\saml\core\helpers\ClaimTypes;
 
 class Settings extends AbstractSettings implements SettingsInterface
 {
@@ -71,6 +72,9 @@ class Settings extends AbstractSettings implements SettingsInterface
      *
      * Take the following example:
      * Here is my responseAttributeMap from the config/saml-sp.php
+     *
+     * @see ClaimTypes
+     *
      * ```php
      * ...
      * 'responseAttributeMap' => [
@@ -103,8 +107,16 @@ class Settings extends AbstractSettings implements SettingsInterface
      * Here is my responseAttributeMap with a callable from the config/saml-sp.php
      * ```php
      * 'responseAttributeMap' => [
-     *      ClaimTypes::EMAIL_ADDRESS => function(\LightSaml\Model\Assertion\Assertion $attribute, \craft\elements\User $user){
-     *           $user->email = $attribute->getFirstAttributeValue();
+     *      ClaimTypes::EMAIL_ADDRESS => function(\craft\elements\User $user, array $attribute){
+     *         // $attribute is key/name value (string/array) pair
+     *
+     *         // Could be an array
+     *         $attributeValue = $attribute['Email'];
+     *         if(is_array($attributeValue)){
+     *             $attributeValue = $attributeValue[0];
+     *         }
+     *
+     *         $user->email = $attribute['Email'];
      *      }
      * ],
      * ```
@@ -112,12 +124,10 @@ class Settings extends AbstractSettings implements SettingsInterface
      */
 
     public $responseAttributeMap = [
-        //craft user/response assertion attribute name mapping
+        // Craft Property => SP Response Attribute Name
         'email' => 'email',
         'firstName' => 'firstName',
         'lastName' => 'lastName',
-
-
     ];
 
 }

@@ -23,16 +23,6 @@ class Install extends AbstractInstall
         return Saml::getInstance();
     }
 
-    protected function getProviderFields()
-    {
-        return array_merge(
-            parent::getProviderFields(),
-            [
-                'encryptAssertions' => $this->boolean()->defaultValue(true)->notNull(),
-            ]
-        );
-    }
-
     /**
      * @inheritdoc
      */

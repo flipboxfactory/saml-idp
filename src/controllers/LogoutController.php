@@ -10,16 +10,13 @@ namespace flipbox\saml\sp\controllers;
 
 
 use craft\web\Controller;
-use craft\web\Response;
-use flipbox\saml\sp\models\Settings;
-use flipbox\saml\sp\Saml;
-use Craft;
-use flipbox\saml\sp\helpers\SerializeHelper;
-use LightSaml\Model\Protocol\AuthnRequest;
-use LightSaml\Model\XmlDSig\SignatureWriter;
-use LightSaml\SamlConstants;
-use RobRichards\XMLSecLibs\XMLSecurityKey;
 
+
+/**
+ * TODO
+ * Class LogoutController
+ * @package flipbox\saml\sp\controllers
+ */
 class LogoutController extends Controller
 {
 

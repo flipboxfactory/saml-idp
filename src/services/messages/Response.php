@@ -5,7 +5,9 @@ namespace flipbox\saml\idp\services\messages;
 
 use craft\base\Component;
 use craft\elements\User;
+use flipbox\saml\core\exceptions\AccessDenied;
 use flipbox\saml\core\helpers\MessageHelper;
+use flipbox\saml\core\records\AbstractProvider;
 use flipbox\saml\core\services\bindings\Factory;
 use flipbox\saml\idp\models\Settings;
 use flipbox\saml\idp\records\ProviderRecord;
@@ -20,6 +22,15 @@ class Response extends Component
 
     const CONSENT_IMPLICIT = 'urn:oasis:names:tc:SAML:2.0:consent:current-implicit';
 
+    /**
+     * @param User $user
+     * @param AuthnRequest $authnRequest
+     * @param Provider $identityProvider
+     * @param Provider $serviceProvider
+     * @param Settings $settings
+     * @return ResponseMessage
+     * @throws \Exception
+     */
     public function create(
         User $user,
         AuthnRequest $authnRequest,
@@ -28,9 +39,17 @@ class Response extends Component
         Settings $settings
     )
     {
-        $serviceProvider = Saml::getInstance()->getProvider()->findByEntityId(
-            MessageHelper::getIssuer($authnRequest->getIssuer())
-        )->one();
+        // Check Conditional login on the user
+        if ($this->isDenied($user, $serviceProvider)) {
+            throw new AccessDenied(
+                sprintf(
+                    'Entity (%s) Access denied for user %s',
+                    $serviceProvider->getEntityId(),
+                    $user->username
+                )
+            );
+        }
+
 
         $response = $this->createGeneral($authnRequest, $identityProvider, $serviceProvider);
 
@@ -99,6 +118,9 @@ class Response extends Component
             return;
         }
 
+        // Clear the session
+        Saml::getInstance()->getSession()->remove();
+
         if (! $user = \Craft::$app->getUser()->getIdentity()) {
             return;
         }
@@ -122,5 +144,24 @@ class Response extends Component
         );
 
         Factory::send($response, $serviceProvider);
+    }
+
+    /**
+     * Utils
+     */
+
+    /**
+     * @param User $user
+     * @param AbstractProvider $serviceProvider
+     * @return bool
+     */
+    protected function isDenied(User $user, AbstractProvider $serviceProvider)
+    {
+        foreach ($user->getGroups() as $group) {
+            if (in_array($group->id, $serviceProvider->getDenyGroupAccess())) {
+                return true;
+            }
+        }
+        return false;
     }
 }

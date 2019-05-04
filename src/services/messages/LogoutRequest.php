@@ -12,9 +12,12 @@ namespace flipbox\saml\idp\services\messages;
 use craft\base\Component;
 use craft\elements\User;
 use flipbox\saml\idp\Saml;
-use LightSaml\Model\Assertion\NameID;
-use LightSaml\Model\Protocol\LogoutRequest as LogoutRequestModel;
 
+/**
+ * TODO
+ * Class LogoutRequest
+ * @package flipbox\saml\idp\services\messages
+ */
 class LogoutRequest extends Component
 {
     public function create(User $user)

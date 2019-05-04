@@ -10,8 +10,12 @@ namespace flipbox\saml\idp\services\messages;
 
 
 use craft\base\Component;
-use LightSaml\Model\Protocol\LogoutRequest as LogoutResponseModel;
 
+/**
+ * TODO
+ * Class LogoutResponse
+ * @package flipbox\saml\idp\services\messages
+ */
 class LogoutResponse extends Component
 {
     public function create()

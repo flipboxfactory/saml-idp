@@ -7,9 +7,10 @@ use craft\base\Component;
 use craft\elements\User;
 use craft\helpers\ConfigHelper;
 use flipbox\saml\core\helpers\ProviderHelper;
-use flipbox\saml\core\helpers\SecurityHelper;
+use flipbox\saml\core\records\AbstractProvider;
 use flipbox\saml\idp\models\Settings;
 use flipbox\saml\idp\records\ProviderRecord;
+use flipbox\saml\idp\Saml;
 use SAML2\Assertion;
 use SAML2\AuthnRequest;
 use SAML2\Constants;
@@ -54,7 +55,7 @@ class ResponseAssertion extends Component
         $this->setAssertionAttributes(
             $user,
             $assertion,
-            $identityProvider,
+            $serviceProvider,
             $settings
         );
 
@@ -270,7 +271,39 @@ class ResponseAssertion extends Component
 
         }
 
+        // Add groups if configured
+        if (
+            $serviceProvider->syncGroups &&
+            ($groupAttribute = $this->groupsToAttributes($user, $serviceProvider))
+        ) {
+            $attributes[$serviceProvider->groupsAttributeName] = $groupAttribute;
+        }
+
+        Saml::debug(json_encode($attributes));
         $assertion->setAttributes($attributes);
+    }
+
+    /**
+     * @param User $user
+     * @param AbstractProvider $serviceProvider
+     * @return array|bool
+     */
+    protected function groupsToAttributes(User $user, AbstractProvider $serviceProvider)
+    {
+        if (count($user->getGroups()) === 0) {
+            return false;
+        }
+        $attribute = [];
+        foreach ($user->getGroups() as $group) {
+
+            if (in_array($group->id, $serviceProvider->getDenyGroupAccess())) {
+                continue;
+            }
+
+            $attribute[] = $group->name;
+        }
+
+        return $attribute;
     }
 
     /**
@@ -289,8 +322,14 @@ class ResponseAssertion extends Component
         $craftProperty
     )
     {
+        $attributeValue = $user->{$craftProperty};
+
+        if ($attributeValue instanceof \DateTime) {
+            $attributeValue = $attributeValue->format(\DateTime::ISO8601);
+        }
+
         return [
-            $attributeName => $user->{$craftProperty},
+            $attributeName => (string)$attributeValue,
         ];
 
     }
