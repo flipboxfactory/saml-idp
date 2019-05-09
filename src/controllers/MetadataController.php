@@ -8,7 +8,6 @@
 
 namespace flipbox\saml\idp\controllers;
 
-
 use flipbox\saml\core\controllers\AbstractMetadataController;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\traits\SamlPluginEnsured;

@@ -8,7 +8,6 @@
 
 namespace flipbox\saml\idp\controllers;
 
-
 use Craft;
 use flipbox\saml\core\controllers\messages\AbstractController;
 use flipbox\saml\core\helpers\MessageHelper;
@@ -53,7 +52,6 @@ class LoginController extends AbstractController
          * Check relay state
          */
         if ($relayState = \Craft::$app->request->getParam('RelayState')) {
-
             try {
                 $relayStateDecoded = base64_decode($relayState);
                 $authnRequest->setRelayState($relayState);
@@ -85,7 +83,6 @@ class LoginController extends AbstractController
                 $identityProvider,
                 $serviceProvider,
                 Saml::getInstance()->getSettings()
-
             );
 
             Factory::send($response, $serviceProvider);
@@ -100,5 +97,4 @@ class LoginController extends AbstractController
         );
         return;
     }
-
 }

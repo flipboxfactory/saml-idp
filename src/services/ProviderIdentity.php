@@ -12,7 +12,6 @@ use flipbox\saml\core\services\AbstractProviderIdentityService;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\traits\SamlPluginEnsured;
 
-
 /**
  * Class ProviderIdentity
  * @package flipbox\saml\sp\services

@@ -1,7 +1,7 @@
 {
   "name": "flipboxfactory/saml-idp",
   "description": "SAML Identity Provider",
-  "version": "1.0.0-beta",
+  "version": "1.0.0",
   "type": "craft-plugin",
   "keywords": [
     "cms",
@@ -14,7 +14,7 @@
     "yii2"
   ],
   "require": {
-    "flipboxfactory/saml-core": "^2.0.0-beta"
+    "flipboxfactory/saml-core": "^2.0.0"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "^3.4",
@@ -39,7 +39,7 @@
   },
   "extra": {
     "name": "SAML Identity Provider",
-    "version":"1.0.0-beta",
+    "version":"1.0.0",
     "schemaVersion":"1.0.0",
     "handle": "saml-idp",
     "class": "flipbox\\saml\\idp\\Saml",

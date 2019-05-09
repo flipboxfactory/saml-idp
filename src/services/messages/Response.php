@@ -2,7 +2,6 @@
 
 namespace flipbox\saml\idp\services\messages;
 
-
 use craft\base\Component;
 use craft\elements\User;
 use flipbox\saml\core\exceptions\AccessDenied;
@@ -39,8 +38,7 @@ class Response extends Component
         Provider $identityProvider,
         Provider $serviceProvider,
         Settings $settings
-    )
-    {
+    ) {
         // Check Conditional login on the user
         if ($this->isDenied($user, $serviceProvider)) {
             throw new AccessDenied(
@@ -89,7 +87,9 @@ class Response extends Component
     protected function createGeneral(AuthnRequest $authnRequest, Provider $identityProvider, Provider $serviceProvider)
     {
 
-        $acsService = $serviceProvider->firstSpAcsService(Constants::BINDING_HTTP_POST) ?? $serviceProvider->firstSpAcsService();
+        $acsService = $serviceProvider->firstSpAcsService(
+            Constants::BINDING_HTTP_POST
+        ) ?? $serviceProvider->firstSpAcsService();
         $response = new ResponseMessage();
         $response->setIssuer(
             $identityProvider->entityId

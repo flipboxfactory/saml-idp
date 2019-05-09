@@ -30,4 +30,3 @@ trait SamlPluginEnsured
         $this->getPlugin()->loadSaml2Container();
     }
 }
-

@@ -8,7 +8,6 @@
 
 namespace flipbox\saml\idp\services;
 
-
 use SAML2\AuthnRequest;
 
 class Session extends \flipbox\saml\core\services\Session
@@ -77,5 +76,4 @@ class Session extends \flipbox\saml\core\services\Session
             ),
         ];
     }
-
 }

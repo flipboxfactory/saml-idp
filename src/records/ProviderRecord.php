@@ -2,7 +2,6 @@
 
 namespace flipbox\saml\idp\records;
 
-
 use flipbox\ember\records\traits\StateAttribute;
 use flipbox\saml\core\models\SettingsInterface;
 use flipbox\saml\core\records\AbstractProvider;

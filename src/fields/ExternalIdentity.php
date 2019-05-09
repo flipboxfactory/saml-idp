@@ -9,5 +9,4 @@ class ExternalIdentity extends AbstractExternalIdentity
 {
 
     use SamlPluginEnsured;
-
 }

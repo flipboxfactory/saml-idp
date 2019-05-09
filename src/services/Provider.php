@@ -2,7 +2,6 @@
 
 namespace flipbox\saml\idp\services;
 
-
 use flipbox\saml\core\services\AbstractProviderService;
 use flipbox\saml\core\services\ProviderServiceInterface;
 use flipbox\saml\idp\Saml;

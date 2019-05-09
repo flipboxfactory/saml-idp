@@ -2,7 +2,6 @@
 
 namespace flipbox\saml\idp\services\messages;
 
-
 use craft\base\Component;
 use craft\elements\User;
 use craft\helpers\ConfigHelper;
@@ -29,8 +28,7 @@ class ResponseAssertion extends Component
         ProviderRecord $identityProvider,
         ProviderRecord $serviceProvider,
         Settings $settings
-    )
-    {
+    ) {
         $assertion = new Assertion();
 
         $assertion->setIssuer(
@@ -79,10 +77,10 @@ class ResponseAssertion extends Component
 //            $assertion->setRequiredEncAttributes(true);
 
             $assertion = new EncryptedAssertion();
-            $assertion->setAssertion($unencrypted,
+            $assertion->setAssertion(
+                $unencrypted,
                 $serviceProvider->encryptionKey()
             );
-
         }
 
         $response->setAssertions(
@@ -104,8 +102,7 @@ class ResponseAssertion extends Component
         AuthnRequest $authnRequest,
         User $user,
         Settings $settings
-    )
-    {
+    ) {
         /**
          * Subject Confirmation
          * Reference: https://stackoverflow.com/a/29546696/1590910
@@ -159,8 +156,7 @@ class ResponseAssertion extends Component
     protected function createConditions(
         Assertion $assertion,
         Settings $settings
-    )
-    {
+    ) {
         /**
          * Conditions
          * Reference: https://stackoverflow.com/a/29546696/1590910
@@ -181,7 +177,6 @@ class ResponseAssertion extends Component
                 $settings->messageNotOnOrAfter
             ))->getTimestamp()
         );
-
     }
 
     /**
@@ -204,9 +199,9 @@ class ResponseAssertion extends Component
          */
         $sessionEnd = (new \DateTime())->setTimestamp(
             ConfigHelper::durationInSeconds(
-            /**
-             * Use crafts user session duration
-             */
+                /**
+                * Use crafts user session duration
+                */
                 \Craft::$app->config->getGeneral()->userSessionDuration
             )
             + // Math!
@@ -222,7 +217,7 @@ class ResponseAssertion extends Component
         );
         $assertion->setSessionIndex(
 
-        // Just mask the session id
+            // Just mask the session id
 
             \Craft::$app->security->hashData(
                 \Craft::$app->session->getId()
@@ -232,7 +227,6 @@ class ResponseAssertion extends Component
         $assertion->setAuthnContextClassRef(
             Constants::AC_PASSWORD
         );
-
     }
 
     protected function setAssertionAttributes(
@@ -240,8 +234,7 @@ class ResponseAssertion extends Component
         Assertion $assertion,
         ProviderRecord $serviceProvider,
         Settings $settings
-    )
-    {
+    ) {
 
         // set on the assertion and the subject confirmations
         $assertion->setNameID(
@@ -262,18 +255,15 @@ class ResponseAssertion extends Component
 
         $attributes = [];
         foreach ($attributeMap as $attributeName => $craftProperty) {
-
             $attributes[$attributeName] = $this->assignProperty(
                 $user,
                 $attributeName,
                 $craftProperty
             );
-
         }
 
         // Add groups if configured
-        if (
-            $serviceProvider->syncGroups &&
+        if ($serviceProvider->syncGroups &&
             ($groupAttribute = $this->groupsToAttributes($user, $serviceProvider))
         ) {
             $attributes[$serviceProvider->groupsAttributeName] = $groupAttribute;
@@ -320,8 +310,7 @@ class ResponseAssertion extends Component
         User $user,
         $attributeName,
         $craftProperty
-    )
-    {
+    ) {
         $attributeValue = $user->{$craftProperty};
 
         if ($attributeValue instanceof \DateTime) {
@@ -331,7 +320,6 @@ class ResponseAssertion extends Component
         return [
             $attributeName => (string)$attributeValue,
         ];
-
     }
 
     /**

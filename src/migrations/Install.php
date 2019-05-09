@@ -8,7 +8,6 @@ use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
 use yii\base\Module;
 
-
 /**
  * @author Flipbox Factory <hello@flipboxfactory.com>
  * @since 1.0.0

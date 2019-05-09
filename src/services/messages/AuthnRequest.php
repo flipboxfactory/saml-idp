@@ -8,7 +8,6 @@
 
 namespace flipbox\saml\idp\services\messages;
 
-
 use craft\base\Component;
 use flipbox\saml\core\exceptions\InvalidMessage;
 use flipbox\saml\core\helpers\MessageHelper;
@@ -48,5 +47,4 @@ class AuthnRequest extends Component
 
         return true;
     }
-
 }

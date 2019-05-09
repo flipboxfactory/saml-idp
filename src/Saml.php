@@ -8,7 +8,6 @@
 
 namespace flipbox\saml\idp;
 
-
 use craft\events\RegisterComponentTypesEvent;
 use craft\services\Fields;
 use craft\web\UrlManager;
@@ -39,7 +38,6 @@ class Saml extends AbstractPlugin
         $this->initCore();
         $this->initComponents();
         $this->initEvents();
-
     }
 
     public function initComponents()
@@ -158,7 +156,7 @@ class Saml extends AbstractPlugin
 
     public function getMyType()
     {
-        return Settings::IDP;
+        return SettingsInterface::IDP;
     }
 
     /**
