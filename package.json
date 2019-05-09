@@ -1,0 +1,15 @@
+{
+  "name": "saml-idp",
+  "version": "1.0.0",
+  "description": "SAML IDP SSO",
+  "scripts": {
+    "docs:dev": "vuepress dev docs",
+    "docs:build": "vuepress build docs"
+  },
+  "author": "Flipbox Digital",
+  "license": "MIT",
+  "devDependencies": {
+    "vuepress": "^0.10.2",
+    "vuepress-theme-flipbox": "^1.0.31"
+  }
+}

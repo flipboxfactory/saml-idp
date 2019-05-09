@@ -16,11 +16,13 @@ use flipbox\saml\idp\Saml;
 use SAML2\AuthnRequest;
 use SAML2\Constants;
 use SAML2\Response as ResponseMessage;
+use yii\base\Event;
 
 class Response extends Component
 {
 
-    const CONSENT_IMPLICIT = 'urn:oasis:names:tc:SAML:2.0:consent:current-implicit';
+    const CONSENT_IMPLICIT = Constants::CONSENT_IMPLICIT;
+    const EVENT_AFTER_MESSAGE_CREATED = 'eventAfterMessageCreated';
 
     /**
      * @param User $user
@@ -66,6 +68,14 @@ class Response extends Component
         $response->setSignatureKey(
             $identityProvider->keychainPrivateXmlSecurityKey()
         );
+
+
+        /**
+         * Kick off event here so people can manipulate this object if needed
+         */
+        $event = new Event();
+        $event->data = $response;
+        $this->trigger(static::EVENT_AFTER_MESSAGE_CREATED, $event);
 
         return $response;
     }
@@ -158,7 +168,8 @@ class Response extends Component
     protected function isDenied(User $user, AbstractProvider $serviceProvider)
     {
         foreach ($user->getGroups() as $group) {
-            if (in_array($group->id, $serviceProvider->getDenyGroupAccess())) {
+            $options = $serviceProvider->getGroupOptions();
+            if ($options->shouldDeny($group->id)) {
                 return true;
             }
         }

@@ -16,33 +16,6 @@ use flipbox\saml\core\helpers\ClaimTypes;
 class Settings extends AbstractSettings implements SettingsInterface
 {
     /**
-     * @var bool
-     */
-    public $encryptAssertions = false;
-    /**
-     * @var bool
-     */
-    public $signAuthnRequest = true;
-
-    /**
-     * @var bool
-     */
-    public $enableHttpRedirectBinding = true;
-    /**
-     * @var bool
-     */
-    public $enableHttpPostBinding = true;
-
-    public $enableCpLogin = true;
-
-    /**
-     * @var array
-     */
-    public $groupAttributeNames = [
-        'groups',
-    ];
-
-    /**
      * SubjectConfirmationData and Conditions datetimes
      * https://stackoverflow.com/a/29546696/1590910
      */
@@ -124,10 +97,10 @@ class Settings extends AbstractSettings implements SettingsInterface
      */
 
     public $responseAttributeMap = [
-        // Craft Property => SP Response Attribute Name
-        'email' => 'email',
-        'firstName' => 'firstName',
-        'lastName' => 'lastName',
+        // SP Response Attribute Name => Craft Property
+        'Email' => 'email',
+        'FirstName' => 'firstName',
+        'LastName' => 'lastName',
     ];
 
 }

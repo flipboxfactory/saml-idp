@@ -17,9 +17,7 @@ composer require flipboxfactory/saml-idp
 
 ## Testing
 
-``` bash
-$ ./vendor/bin/phpunit
-```
+### TODO
 
 ## Contributing
 

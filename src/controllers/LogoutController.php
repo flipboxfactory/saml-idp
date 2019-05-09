@@ -6,41 +6,34 @@
  * Time: 11:52 AM
  */
 
-namespace flipbox\saml\sp\controllers;
+namespace flipbox\saml\idp\controllers;
 
-
-use craft\web\Controller;
-
+use flipbox\saml\core\controllers\messages\AbstractLogoutController;
+use flipbox\saml\core\records\ProviderInterface;
+use flipbox\saml\idp\traits\SamlPluginEnsured;
 
 /**
- * TODO
  * Class LogoutController
- * @package flipbox\saml\sp\controllers
+ *
+ * @package flipbox\saml\idp\controllers
  */
-class LogoutController extends Controller
+class LogoutController extends AbstractLogoutController
 {
 
-    protected $allowAnonymous = [
-        'actionIndex',
-    ];
-
-    public $enableCsrfValidation = false;
+    use SamlPluginEnsured;
 
     /**
-     * @param \yii\base\Action $action
-     * @return bool
+     * @param null $uid
+     * @return bool|ProviderInterface
      */
-    public function beforeAction($action)
+    protected function getRemoteProvider($uid = null)
     {
-        if ($action->actionMethod === 'actionIndex') {
-            return true;
+        $condition = [];
+        if ($uid) {
+            $condition = [
+                'uid' => $uid,
+            ];
         }
-        return parent::beforeAction($action);
+        return $this->getPlugin()->getProvider()->findBySp($condition)->one();
     }
-
-    public function actionIndex()
-    {
-
-    }
-
 }

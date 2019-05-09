@@ -9,8 +9,6 @@
 namespace flipbox\saml\idp;
 
 
-use Craft;
-use craft\console\Application as ConsoleApplication;
 use craft\events\RegisterComponentTypesEvent;
 use craft\services\Fields;
 use craft\web\UrlManager;
@@ -23,8 +21,6 @@ use flipbox\saml\idp\models\Settings;
 use flipbox\saml\idp\records\ProviderIdentityRecord;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\services\messages\AuthnRequest;
-use flipbox\saml\idp\services\messages\LogoutRequest;
-use flipbox\saml\idp\services\messages\LogoutResponse;
 use flipbox\saml\idp\services\messages\Response;
 use flipbox\saml\idp\services\messages\ResponseAssertion;
 use flipbox\saml\idp\services\Provider;
@@ -44,18 +40,12 @@ class Saml extends AbstractPlugin
         $this->initComponents();
         $this->initEvents();
 
-        // Switch target to console controllers
-        if (Craft::$app instanceof ConsoleApplication) {
-            $this->controllerNamespace = __NAMESPACE__ . '\cli';
-        }
     }
 
     public function initComponents()
     {
         $this->setComponents([
             'authnRequest' => AuthnRequest::class,
-            'logoutRequest' => LogoutRequest::class,
-            'logoutResponse' => LogoutResponse::class,
             'provider' => Provider::class,
             'providerIdentity' => ProviderIdentity::class,
             'response' => Response::class,
@@ -121,7 +111,9 @@ class Saml extends AbstractPlugin
      */
     public function createSettingsModel()
     {
-        return new Settings();
+        return new Settings([
+            'myType' => SettingsInterface::IDP,
+        ]);
     }
 
     /**
@@ -134,22 +126,6 @@ class Saml extends AbstractPlugin
     public function getAuthnRequest()
     {
         return $this->get('authnRequest');
-    }
-
-    /**
-     * @return LogoutRequest
-     */
-    public function getLogoutRequest()
-    {
-        return $this->get('logoutRequest');
-    }
-
-    /**
-     * @return LogoutResponse
-     */
-    public function getLogoutResponse()
-    {
-        return $this->get('logoutResponse');
     }
 
     /**

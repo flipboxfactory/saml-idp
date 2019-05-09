@@ -295,8 +295,8 @@ class ResponseAssertion extends Component
         }
         $attribute = [];
         foreach ($user->getGroups() as $group) {
-
-            if (in_array($group->id, $serviceProvider->getDenyGroupAccess())) {
+            $options = $serviceProvider->getGroupOptions();
+            if (! $options->shouldSync($group->id)) {
                 continue;
             }
 
