@@ -5,6 +5,8 @@ namespace tests\unit\idp;
 
 use Codeception\Scenario;
 use Codeception\Test\Unit;
+use flipbox\saml\core\records\AbstractProvider;
+use flipbox\saml\core\records\ProviderInterface;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
 use RobRichards\XMLSecLibs\XMLSecurityKey;
@@ -61,7 +63,7 @@ class RemoteProviderRecordTest extends Unit
         );
 
         $this->assertEquals(
-            ProviderRecord::TYPE_IDP,
+            ProviderInterface::TYPE_IDP,
             $provider->getType()
         );
 

@@ -153,12 +153,7 @@ class Saml extends AbstractPlugin
     /**
      * Util Methods
      */
-
-    public function getMyType()
-    {
-        return SettingsInterface::IDP;
-    }
-
+    
     /**
      * @return string
      */

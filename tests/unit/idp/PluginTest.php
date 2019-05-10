@@ -7,13 +7,17 @@ namespace tests\unit\idp;
 use Codeception\Test\Unit;
 use flipbox\saml\core\AbstractPlugin;
 use flipbox\saml\core\containers\Saml2Container;
+use flipbox\saml\core\models\SettingsInterface;
 use flipbox\saml\core\services\Metadata;
 use flipbox\saml\core\services\Session;
 use flipbox\saml\idp\models\Settings;
+use flipbox\saml\idp\records\ProviderIdentityRecord;
+use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
 use flipbox\saml\idp\services\messages\AuthnRequest;
 use flipbox\saml\core\services\messages\LogoutRequest;
 use flipbox\saml\core\services\messages\LogoutResponse;
+use flipbox\saml\idp\services\messages\ResponseAssertion;
 use flipbox\saml\idp\services\Provider;
 use flipbox\saml\idp\services\ProviderIdentity;
 use flipbox\saml\idp\traits\SamlPluginEnsured;
@@ -26,13 +30,15 @@ class PluginTest extends Unit
      */
     private $module;
 
+    const PLUGIN_HANDLE = 'saml-idp';
+
     /**
      * @SuppressWarnings(PHPMD.CamelCaseMethodName)
      * phpcs:disable PSR2.Methods.MethodDeclaration.Underscore
      */
     protected function _before()
     {
-        $this->module = new Saml('saml-idp');
+        $this->module = new Saml(self::PLUGIN_HANDLE);
     }
 
     public function testPluginInstance()
@@ -49,9 +55,29 @@ class PluginTest extends Unit
 
     }
 
+    public function testCraftPluginMethods()
+    {
+        $this->assertEquals(
+            self::PLUGIN_HANDLE,
+            $this->module->getHandle()
+        );
+
+        $this->assertEquals(
+            self::PLUGIN_HANDLE,
+            $this->module->getUniqueId()
+        );
+
+        $this->assertInstanceOf(
+            SettingsInterface::class,
+            $this->module->createSettingsModel()
+        );
+
+    }
+
     public function testPluginType()
     {
-        $this->assertEquals(Settings::IDP, $this->module->getMyType());
+        $this->assertEquals(SettingsInterface::IDP, $this->module->getMyType());
+        $this->assertEquals(SettingsInterface::SP, $this->module->getRemoteType());
     }
 
     public function testPluginComponents()
@@ -59,10 +85,12 @@ class PluginTest extends Unit
         $this->assertInstanceOf(AuthnRequest::class, $this->module->getAuthnRequest());
         $this->assertInstanceOf(LogoutRequest::class, $this->module->getLogoutRequest());
         $this->assertInstanceOf(LogoutResponse::class, $this->module->getLogoutResponse());
+        $this->assertInstanceOf(ResponseAssertion::class, $this->module->getResponseAssertion());
         $this->assertInstanceOf(Provider::class, $this->module->getProvider());
         $this->assertInstanceOf(ProviderIdentity::class, $this->module->getProviderIdentity());
         $this->assertInstanceOf(Metadata::class, $this->module->getMetadata());
         $this->assertInstanceOf(Session::class, $this->module->getSession());
+        $this->assertInstanceOf(Settings::class, $this->module->getSettings());
     }
 
     public function testEnsurePlugin()
@@ -103,5 +131,26 @@ class PluginTest extends Unit
             $container->getLogger()
         );
 
+    }
+
+    public function testProviderRecordGetter()
+    {
+        $providerClass = $this->module->getProviderRecordClass();
+        $provider = new $providerClass;
+        $this->assertInstanceOf(
+            ProviderRecord::class,
+            $provider
+        );
+
+    }
+
+    public function testProviderIdentityRecordGetter()
+    {
+        $providerIdClass = $this->module->getProviderIdentityRecordClass();
+        $providerId = new $providerIdClass;
+        $this->assertInstanceOf(
+            ProviderIdentityRecord::class,
+            $providerId
+        );
     }
 }

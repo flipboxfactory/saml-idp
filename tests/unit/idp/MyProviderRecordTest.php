@@ -114,7 +114,7 @@ class MyProviderRecordTest extends Unit
 
     public function testEntityDescriptorTrait()
     {
-        $this->pluginHelper->installIfNeeded();
+//        $this->pluginHelper->installIfNeeded();
         $metadata = $this->metadataFactory->createMyEntityDescriptorWithKey();
 
         $provider = new ProviderRecord([
