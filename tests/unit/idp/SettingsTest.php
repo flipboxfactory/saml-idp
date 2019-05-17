@@ -28,11 +28,6 @@ class SettingsTest extends Unit
         $settings = $this->module->getSettings();
 
         $this->assertStringContainsString(
-            'localhost',
-            $settings->getEntityId()
-        );
-
-        $this->assertStringContainsString(
             'overwrite.dev',
             $settings->setEntityId('https://overwrite.dev/')->getEntityId()
         );
