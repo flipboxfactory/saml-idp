@@ -33,4 +33,5 @@ modules:
           # cleanup: true
           # reconnect: true
           dump:
+           - tests/_data/create-dbs.sql
            - tests/_data/test.sql
