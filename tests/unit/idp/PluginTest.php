@@ -121,8 +121,7 @@ class PluginTest extends Unit
             $container->getPlugin()
         );
 
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $container->generateId()
         );
 

@@ -32,13 +32,11 @@ class SettingsTest extends Unit
             $settings->setEntityId('https://overwrite.dev/')->getEntityId()
         );
 
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $settings->messageNotBefore
         );
 
-        $this->assertInternalType(
-            'string',
+        $this->assertIsString(
             $settings->messageNotOnOrAfter
         );
 
