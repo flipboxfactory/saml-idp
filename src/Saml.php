@@ -153,7 +153,7 @@ class Saml extends AbstractPlugin
     /**
      * Util Methods
      */
-    
+
     /**
      * @return string
      */

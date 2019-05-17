@@ -12,9 +12,9 @@ test-unit-debug: DEBUG := -vvv -d
 test-unit-debug: test-unit
 
 phpcs:
-	docker-compose run --rm web sh -c "./plugin/vendor/bin/phpcs --standard=psr2 --ignore=./plugin/src/web/assets/*/dist/*,./plugin/src/migrations/m* ./plugin/src"
+	docker-compose run --rm web sh -c "./vendor/bin/phpcs --standard=psr2 --ignore=./src/web/assets/*/dist/*,./src/migrations/m* ./src"
 phpcbf:
-	docker-compose run --rm web sh -c "./plugin/vendor/bin/phpcbf --standard=psr2 ./plugin/src"
+	docker-compose run --rm web sh -c "./vendor/bin/phpcbf --standard=psr2 ./src"
 
 # DOCS
 docs-build:

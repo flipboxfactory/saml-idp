@@ -5,7 +5,7 @@ namespace flipbox\saml\idp\services\messages;
 use craft\base\Component;
 use craft\elements\User;
 use craft\helpers\ConfigHelper;
-use flipbox\saml\core\helpers\ProviderHelper;
+use flipbox\saml\core\models\AttributeMap;
 use flipbox\saml\core\records\AbstractProvider;
 use flipbox\saml\idp\models\Settings;
 use flipbox\saml\idp\records\ProviderRecord;
@@ -28,7 +28,8 @@ class ResponseAssertion extends Component
         ProviderRecord $identityProvider,
         ProviderRecord $serviceProvider,
         Settings $settings
-    ) {
+    )
+    {
         $assertion = new Assertion();
 
         $assertion->setIssuer(
@@ -39,6 +40,7 @@ class ResponseAssertion extends Component
         $assertion->setSubjectConfirmation([
             $this->createSubjectConfirmation(
                 $authnRequest,
+                $serviceProvider,
                 $user,
                 $settings
             ),
@@ -100,9 +102,11 @@ class ResponseAssertion extends Component
      */
     protected function createSubjectConfirmation(
         AuthnRequest $authnRequest,
+        AbstractProvider $serviceProvider,
         User $user,
         Settings $settings
-    ) {
+    )
+    {
         /**
          * Subject Confirmation
          * Reference: https://stackoverflow.com/a/29546696/1590910
@@ -142,9 +146,10 @@ class ResponseAssertion extends Component
             $nameId = new NameID()
         );
 
-        // TODO - Configuration based NameIds
         $nameId->setFormat(Constants::NAMEID_UNSPECIFIED);
-        $nameId->setValue($user->username);
+        $nameId->setValue(
+            $serviceProvider->assignNameId($user)
+        );
 
         return $subjectConfirmation;
     }
@@ -156,7 +161,8 @@ class ResponseAssertion extends Component
     protected function createConditions(
         Assertion $assertion,
         Settings $settings
-    ) {
+    )
+    {
         /**
          * Conditions
          * Reference: https://stackoverflow.com/a/29546696/1590910
@@ -199,9 +205,9 @@ class ResponseAssertion extends Component
          */
         $sessionEnd = (new \DateTime())->setTimestamp(
             ConfigHelper::durationInSeconds(
-                /**
-                * Use crafts user session duration
-                */
+            /**
+             * Use crafts user session duration
+             */
                 \Craft::$app->config->getGeneral()->userSessionDuration
             )
             + // Math!
@@ -215,13 +221,9 @@ class ResponseAssertion extends Component
         $assertion->setSessionNotOnOrAfter(
             $sessionEnd->getTimestamp()
         );
+
         $assertion->setSessionIndex(
-
-            // Just mask the session id
-
-            \Craft::$app->security->hashData(
-                \Craft::$app->session->getId()
-            )
+            Saml::getInstance()->getSession()->getId()
         );
 
         $assertion->setAuthnContextClassRef(
@@ -229,36 +231,35 @@ class ResponseAssertion extends Component
         );
     }
 
-    protected function setAssertionAttributes(
+    public function setAssertionAttributes(
         User $user,
         Assertion $assertion,
         ProviderRecord $serviceProvider,
         Settings $settings
-    ) {
+    )
+    {
 
         // set on the assertion and the subject confirmations
         $assertion->setNameID(
             $nameId = new NameID()
         );
 
-        // TODO - Configuration based NameIds
         $nameId->setFormat(Constants::NAMEID_UNSPECIFIED);
-        $nameId->setValue($user->username);
+        $nameId->setValue(
+            $serviceProvider->assignNameId($user)
+        );
 
 
         // Check the provider first
         $attributeMap =
-            ProviderHelper::providerMappingToKeyValue(
-                $serviceProvider
-            ) ?:
-                $settings->responseAttributeMap;
+            $serviceProvider->hasMapping() ? $serviceProvider->getMapping() : $settings->responseAttributeMap;
 
         $attributes = [];
-        foreach ($attributeMap as $attributeName => $craftProperty) {
-            $attributes[$attributeName] = $this->assignProperty(
+        foreach ($attributeMap as $map) {
+            $map = new AttributeMap($map);
+            $attributes[$map->attributeName] = $this->assignProperty(
                 $user,
-                $attributeName,
-                $craftProperty
+                $map
             );
         }
 
@@ -308,17 +309,17 @@ class ResponseAssertion extends Component
      */
     protected function assignProperty(
         User $user,
-        $attributeName,
-        $craftProperty
-    ) {
-        $attributeValue = $user->{$craftProperty};
+        AttributeMap $map
+    )
+    {
+        $value = $map->renderValue($user);
 
-        if ($attributeValue instanceof \DateTime) {
-            $attributeValue = $attributeValue->format(\DateTime::ISO8601);
+        if ($value instanceof \DateTime) {
+            $value = $value->format(\DateTime::ISO8601);
         }
 
         return [
-            $attributeName => (string)$attributeValue,
+            $map->attributeName => $value,
         ];
     }
 

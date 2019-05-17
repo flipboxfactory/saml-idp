@@ -12,6 +12,7 @@ use Craft;
 use flipbox\saml\core\controllers\messages\AbstractController;
 use flipbox\saml\core\helpers\MessageHelper;
 use flipbox\saml\core\services\bindings\Factory;
+use flipbox\saml\idp\records\ProviderIdentityRecord;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
 use flipbox\saml\idp\traits\SamlPluginEnsured;
@@ -84,6 +85,13 @@ class LoginController extends AbstractController
                 $serviceProvider,
                 Saml::getInstance()->getSettings()
             );
+
+            $identity = Saml::getInstance()->getProviderIdentity()->findByUserAndProviderOrCreate(
+                $user,
+                $serviceProvider
+            );
+
+            Saml::getInstance()->getProviderIdentity()->save($identity);
 
             Factory::send($response, $serviceProvider);
             return;
