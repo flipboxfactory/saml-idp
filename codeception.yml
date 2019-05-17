@@ -29,7 +29,7 @@ modules:
           dsn: 'mysql:host=%DB_SERVER%;dbname=%DB_DATABASE%;'
           user: '%DB_USER%'
           password: '%DB_PASSWORD%'
-          # populate: true
+          populate: true
           # cleanup: true
           # reconnect: true
           dump:
