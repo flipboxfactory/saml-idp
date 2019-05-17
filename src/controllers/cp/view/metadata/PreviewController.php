@@ -3,7 +3,6 @@
 
 namespace flipbox\saml\idp\controllers\cp\view\metadata;
 
-
 use flipbox\saml\core\controllers\cp\view\metadata\AbstractPreviewController;
 use flipbox\saml\idp\Saml;
 use flipbox\saml\idp\traits\SamlPluginEnsured;

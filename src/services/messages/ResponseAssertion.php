@@ -28,8 +28,7 @@ class ResponseAssertion extends Component
         ProviderRecord $identityProvider,
         ProviderRecord $serviceProvider,
         Settings $settings
-    )
-    {
+    ) {
         $assertion = new Assertion();
 
         $assertion->setIssuer(
@@ -105,8 +104,7 @@ class ResponseAssertion extends Component
         AbstractProvider $serviceProvider,
         User $user,
         Settings $settings
-    )
-    {
+    ) {
         /**
          * Subject Confirmation
          * Reference: https://stackoverflow.com/a/29546696/1590910
@@ -161,8 +159,7 @@ class ResponseAssertion extends Component
     protected function createConditions(
         Assertion $assertion,
         Settings $settings
-    )
-    {
+    ) {
         /**
          * Conditions
          * Reference: https://stackoverflow.com/a/29546696/1590910
@@ -205,9 +202,9 @@ class ResponseAssertion extends Component
          */
         $sessionEnd = (new \DateTime())->setTimestamp(
             ConfigHelper::durationInSeconds(
-            /**
-             * Use crafts user session duration
-             */
+                /**
+                * Use crafts user session duration
+                */
                 \Craft::$app->config->getGeneral()->userSessionDuration
             )
             + // Math!
@@ -236,8 +233,7 @@ class ResponseAssertion extends Component
         Assertion $assertion,
         ProviderRecord $serviceProvider,
         Settings $settings
-    )
-    {
+    ) {
 
         // set on the assertion and the subject confirmations
         $assertion->setNameID(
@@ -310,8 +306,7 @@ class ResponseAssertion extends Component
     protected function assignProperty(
         User $user,
         AttributeMap $map
-    )
-    {
+    ) {
         $value = $map->renderValue($user);
 
         if ($value instanceof \DateTime) {
