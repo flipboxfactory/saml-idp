@@ -1,4 +1,5 @@
-
+TEST_NAME := 
+DEBUG :=
 composer-update:
 	docker-compose exec web sh -c "composer update"
 composer-install-plugin:
@@ -11,8 +12,13 @@ test-unit:
 test-unit-debug: DEBUG := -vvv -d
 test-unit-debug: test-unit
 
+clean:
+	rm -rf vendor/ composer.lock cpresources web
+
 composer-install:
-	composer install
+	docker run --rm -it -v "${PWD}:/var/www/html/" flipbox/php:72-apache sh -c "composer install"
+
+clean-install: clean composer-install
 phpcs: composer-install
 	docker run --rm -it -v "${PWD}:/var/www/html" \
 	    flipbox/php:72-apache sh -c "./vendor/bin/phpcs --standard=psr2 --ignore=./src/web/assets/*/dist/*,./src/migrations/m* ./src"

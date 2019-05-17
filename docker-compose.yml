@@ -15,8 +15,8 @@ services:
             XDEBUG_HOST: "host.docker.internal"
             XDEBUG_IDEKEY: "PHPSTORM"
             DB_SERVER: db
-            DB_USER: craft
-            DB_PASSWORD: craft
+            DB_USER: root
+            DB_PASSWORD: password
             DB_DATABASE: test
             DB_DRIVER: mysql
     db:
