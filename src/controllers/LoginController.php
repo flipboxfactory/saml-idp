@@ -10,9 +10,9 @@ namespace flipbox\saml\idp\controllers;
 
 use Craft;
 use flipbox\saml\core\controllers\messages\AbstractController;
+use flipbox\saml\core\exceptions\InvalidMessage;
 use flipbox\saml\core\helpers\MessageHelper;
 use flipbox\saml\core\services\bindings\Factory;
-use flipbox\saml\idp\records\ProviderIdentityRecord;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
 use flipbox\saml\idp\traits\SamlPluginEnsured;
@@ -47,7 +47,16 @@ class LoginController extends AbstractController
         /** @var AuthnRequest $authnRequest */
         $authnRequest = Factory::receive();
 
-        Saml::getInstance()->getAuthnRequest()->isValid($authnRequest);
+        /** @var ProviderRecord $serviceProvider */
+        $serviceProvider = Saml::getInstance()->getProvider()->findByEntityId(
+            MessageHelper::getIssuer($authnRequest->getIssuer())
+        )->one();
+
+        if (is_null($serviceProvider)) {
+            throw new InvalidMessage("Invalid Issuer.");
+        }
+
+        Saml::getInstance()->getAuthnRequest()->isValid($authnRequest, $serviceProvider);
 
         /**
          * Check relay state
@@ -69,12 +78,6 @@ class LoginController extends AbstractController
         }
 
         if ($user = Craft::$app->getUser()->getIdentity()) {
-
-            /** @var ProviderRecord $serviceProvider */
-            $serviceProvider = Saml::getInstance()->getProvider()->findByEntityId(
-                MessageHelper::getIssuer($authnRequest->getIssuer())
-            )->one();
-
             $identityProvider = Saml::getInstance()->getProvider()->findOwn();
 
             //create response and send back to the sp

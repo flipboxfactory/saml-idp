@@ -11,6 +11,7 @@ namespace flipbox\saml\idp\services\messages;
 use craft\base\Component;
 use flipbox\saml\core\exceptions\InvalidMessage;
 use flipbox\saml\core\helpers\MessageHelper;
+use flipbox\saml\core\records\AbstractProvider;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
 use SAML2\AuthnRequest as SamlAuthnRequest;
@@ -19,19 +20,12 @@ use SAML2\Utils;
 class AuthnRequest extends Component
 {
 
-    public function isValid(SamlAuthnRequest $authnRequest)
+    public function isValid(SamlAuthnRequest $authnRequest, AbstractProvider $serviceProvider)
     {
-        /** @var ProviderRecord $sp */
-        if (! ($sp = Saml::getInstance()->getProvider()->findByEntityId(
-            MessageHelper::getIssuer($authnRequest->getIssuer())
-        )->one())) {
-            throw new InvalidMessage("Invalid Message.");
-        }
-
         //TODO validate Destination
 
         // Validate Signature
-        $signingKey = $sp->signingXMLSecurityKey();
+        $signingKey = $serviceProvider->signingXMLSecurityKey();
 
         if ($signingKey && ($sig = Utils::validateElement($authnRequest->toSignedXML()))) {
             $authnRequest->addValidator(

@@ -5,7 +5,8 @@
         <md:KeyDescriptor use="encryption">
             <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
                 <ds:X509Data>
-                    <ds:X509Certificate>MIIDajCCAlICCQCXsBKJ8e4chjANBgkqhkiG9w0BAQsFADB3MQswCQYDVQQGEwJH
+                    <ds:X509Certificate>
+                        MIIDajCCAlICCQCXsBKJ8e4chjANBgkqhkiG9w0BAQsFADB3MQswCQYDVQQGEwJH
                         QjEPMA0GA1UECAwGTG9uZG9uMQ8wDQYDVQQHDAZMb25kb24xGDAWBgNVBAoMD0ds
                         b2JhbCBTZWN1cml0eTEWMBQGA1UECwwNSVQgRGVwYXJ0bWVudDEUMBIGA1UEAwwL
                         ZXhhbXBsZS5jb20wHhcNMTkwNDI1MTUzNTI1WhcNMjkwNDIyMTUzNTI1WjB3MQsw
@@ -31,7 +32,8 @@
         <md:KeyDescriptor use="signing">
             <ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
                 <ds:X509Data>
-                    <ds:X509Certificate>MIIDajCCAlICCQCXsBKJ8e4chjANBgkqhkiG9w0BAQsFADB3MQswCQYDVQQGEwJH
+                    <ds:X509Certificate>
+                        MIIDajCCAlICCQCXsBKJ8e4chjANBgkqhkiG9w0BAQsFADB3MQswCQYDVQQGEwJH
                         QjEPMA0GA1UECAwGTG9uZG9uMQ8wDQYDVQQHDAZMb25kb24xGDAWBgNVBAoMD0ds
                         b2JhbCBTZWN1cml0eTEWMBQGA1UECwwNSVQgRGVwYXJ0bWVudDEUMBIGA1UEAwwL
                         ZXhhbXBsZS5jb20wHhcNMTkwNDI1MTUzNTI1WhcNMjkwNDIyMTUzNTI1WjB3MQsw

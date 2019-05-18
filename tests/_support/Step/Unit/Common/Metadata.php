@@ -41,6 +41,24 @@ class Metadata extends \UnitTester
         return $keypair;
     }
 
+    public function spPrivateKey($type = XMLSecurityKey::RSA_SHA256)
+    {
+
+        $key = new XMLSecurityKey(
+            $type,
+            [
+                'type' => 'private',
+            ]
+        );
+
+        $key->loadKey(
+            codecept_data_dir() . '/keypairs/saml-sp.pem',
+            true
+        );
+
+        return $key;
+    }
+
     /**
      * @return EntityDescriptor
      * @throws \Exception
@@ -142,6 +160,7 @@ class Metadata extends \UnitTester
         $providerClass = $plugin->getProviderRecordClass();
         $provider = new $providerClass([
             'providerType' => $type,
+            'mapping' => '[{"attributeName":"att1","craftProperty":"email"},{"attributeName":"att2","craftProperty":"firstName"},{"attributeName":"att3","craftProperty":"","templateOverride":"{lastName}"}]',
         ]);
         $provider->setMetadataModel($descriptor);
 
