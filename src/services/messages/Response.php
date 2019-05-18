@@ -12,7 +12,7 @@ use flipbox\saml\idp\models\Settings;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\records\ProviderRecord as Provider;
 use flipbox\saml\idp\Saml;
-use SAML2\AuthnRequest;
+use SAML2\AuthnRequest as SamlAuthnRequest;
 use SAML2\Constants;
 use SAML2\Response as ResponseMessage;
 use yii\base\Event;
@@ -25,7 +25,7 @@ class Response extends Component
 
     /**
      * @param User $user
-     * @param AuthnRequest $authnRequest
+     * @param SamlAuthnRequest $authnRequest
      * @param Provider $identityProvider
      * @param Provider $serviceProvider
      * @param Settings $settings
@@ -34,7 +34,7 @@ class Response extends Component
      */
     public function create(
         User $user,
-        AuthnRequest $authnRequest,
+        SamlAuthnRequest $authnRequest,
         Provider $identityProvider,
         Provider $serviceProvider,
         Settings $settings
@@ -79,12 +79,12 @@ class Response extends Component
     }
 
     /**
-     * @param AuthnRequest $authnRequest
+     * @param SamlAuthnRequest $authnRequest
      * @param Provider $identityProvider
      * @return ResponseMessage
      * @throws \Exception
      */
-    protected function createGeneral(AuthnRequest $authnRequest, Provider $identityProvider, Provider $serviceProvider)
+    protected function createGeneral(SamlAuthnRequest $authnRequest, Provider $identityProvider, Provider $serviceProvider)
     {
 
         $acsService = $serviceProvider->firstSpAcsService(
@@ -92,7 +92,7 @@ class Response extends Component
         ) ?? $serviceProvider->firstSpAcsService();
         $response = new ResponseMessage();
         $response->setIssuer(
-            $identityProvider->entityId
+            $identityProvider->getEntityId()
         );
 
         $response->setId($requestId = MessageHelper::generateId());

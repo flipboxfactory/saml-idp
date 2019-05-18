@@ -11,7 +11,6 @@ use flipbox\saml\idp\Saml;
 /**
  * Class ProviderRecord
  * @package flipbox\saml\idp\records
- * @property boolean $useCpLogin
  * @property boolean $encryptAssertions
  */
 class ProviderRecord extends AbstractProvider implements ProviderInterface
@@ -29,7 +28,7 @@ class ProviderRecord extends AbstractProvider implements ProviderInterface
      */
     public function getLoginPath()
     {
-        if ($this->type !== SettingsInterface::SP) {
+        if ($this->providerType !== SettingsInterface::SP) {
             return null;
         }
         return implode(
@@ -46,7 +45,7 @@ class ProviderRecord extends AbstractProvider implements ProviderInterface
      */
     public function getLogoutPath()
     {
-        if ($this->type !== SettingsInterface::SP) {
+        if ($this->providerType !== SettingsInterface::SP) {
             return null;
         }
         return implode(

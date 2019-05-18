@@ -1,10 +1,6 @@
 TEST_NAME := 
 DEBUG :=
-composer-update:
-	docker-compose exec web sh -c "composer update"
-composer-install-plugin:
-	docker-compose exec web sh -c "composer install"
-test: test-unit
+test: clean-install test-unit
 
 test-unit:
 	docker-compose run --rm web sh -c "php ./vendor/bin/codecept run unit ${TEST_NAME} ${DEBUG} --coverage --coverage-html"

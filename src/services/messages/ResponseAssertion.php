@@ -11,7 +11,7 @@ use flipbox\saml\idp\models\Settings;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
 use SAML2\Assertion;
-use SAML2\AuthnRequest;
+use SAML2\AuthnRequest as SamlAuthnRequest;
 use SAML2\Constants;
 use SAML2\EncryptedAssertion;
 use SAML2\Response as ResponseMessage;
@@ -23,7 +23,7 @@ class ResponseAssertion extends Component
 {
     public function create(
         User $user,
-        AuthnRequest $authnRequest,
+        SamlAuthnRequest $authnRequest,
         ResponseMessage $response,
         ProviderRecord $identityProvider,
         ProviderRecord $serviceProvider,
@@ -31,9 +31,12 @@ class ResponseAssertion extends Component
     ) {
         $assertion = new Assertion();
 
-        $assertion->setIssuer(
-            $response->getIssuer()
-        );
+        $issuer = $response->getIssuer();
+        if (! is_null($issuer)) {
+            $assertion->setIssuer(
+                $issuer
+            );
+        }
 
 
         $assertion->setSubjectConfirmation([
@@ -72,10 +75,12 @@ class ResponseAssertion extends Component
         if ($serviceProvider->encryptAssertions) {
             $unencrypted = $assertion;
 
+            if (is_null($serviceProvider->encryptionKey())) {
+                throw new \Exception('No encryption key found for the service provider.');
+            }
             $unencrypted->setEncryptionKey(
                 $serviceProvider->encryptionKey()
             );
-//            $assertion->setRequiredEncAttributes(true);
 
             $assertion = new EncryptedAssertion();
             $assertion->setAssertion(
@@ -94,13 +99,13 @@ class ResponseAssertion extends Component
     }
 
     /**
-     * @param AuthnRequest $authnRequest
+     * @param SamlAuthnRequest $authnRequest
      * @param User $user
      * @return SubjectConfirmation
      * @throws \Exception
      */
     protected function createSubjectConfirmation(
-        AuthnRequest $authnRequest,
+        SamlAuthnRequest $authnRequest,
         AbstractProvider $serviceProvider,
         User $user,
         Settings $settings
