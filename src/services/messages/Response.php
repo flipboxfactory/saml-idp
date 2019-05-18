@@ -84,8 +84,11 @@ class Response extends Component
      * @return ResponseMessage
      * @throws \Exception
      */
-    protected function createGeneral(SamlAuthnRequest $authnRequest, Provider $identityProvider, Provider $serviceProvider)
-    {
+    protected function createGeneral(
+        SamlAuthnRequest $authnRequest,
+        Provider $identityProvider,
+        Provider $serviceProvider
+    ) {
 
         $acsService = $serviceProvider->firstSpAcsService(
             Constants::BINDING_HTTP_POST
