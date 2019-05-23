@@ -61,20 +61,9 @@ class LoginController extends AbstractController
         /**
          * Check relay state
          */
-        if ($relayState = \Craft::$app->request->getParam('RelayState')) {
-            try {
-                $relayStateDecoded = base64_decode($relayState);
-                $authnRequest->setRelayState($relayState);
-                Saml::info('RelayState: ' . $relayStateDecoded);
-                Saml::info('RelayState from authnRequest: ' . $authnRequest->getRelayState());
-            } catch (\Exception $e) {
-                Saml::warning(
-                    sprintf(
-                        'RelayState must be base64 encoded: %s',
-                        is_string($relayState) ? $relayState : ''
-                    )
-                );
-            }
+
+        if ($relayState = $this->getRelayState()) {
+            $authnRequest->setRelayState($relayState);
         }
 
         if ($user = Craft::$app->getUser()->getIdentity()) {
@@ -107,5 +96,30 @@ class LoginController extends AbstractController
             Craft::$app->config->general->getLoginPath()
         );
         return;
+    }
+
+    /**
+     * @return string
+     */
+    protected function getRelayState(): string
+    {
+        $relayState = \Craft::$app->request->getParam('RelayState');
+        if (is_string($relayState) && ! empty($relayState)) {
+            try {
+                $relayStateDecoded = base64_decode($relayState);
+                Saml::info('RelayState: ' . $relayStateDecoded);
+                Saml::info('RelayState from authnRequest: ' . $authnRequest->getRelayState());
+            } catch (\Exception $e) {
+                Saml::warning(
+                    sprintf(
+                        'RelayState must be base64 encoded: %s',
+                        is_string($relayState) ? $relayState : ''
+                    )
+                );
+            }
+        } else {
+            $relayState = '';
+        }
+        return $relayState;
     }
 }
