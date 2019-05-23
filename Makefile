@@ -3,7 +3,7 @@ DEBUG :=
 test: test-unit
 clean-test: clean-install test-unit
 
-test-unit: phpcs
+test-unit: phpcbf phpcs
 	docker-compose run --rm web sh -c "php ./vendor/bin/codecept run unit ${TEST_NAME} ${DEBUG} --coverage --coverage-html"
 
 test-unit-debug: DEBUG := -vvv -d

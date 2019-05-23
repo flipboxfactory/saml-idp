@@ -9,12 +9,16 @@
 namespace flipbox\saml\idp;
 
 use craft\events\RegisterComponentTypesEvent;
+use craft\events\UserGroupEvent;
+use craft\models\UserGroup;
 use craft\services\Fields;
+use craft\services\UserGroups;
 use craft\web\UrlManager;
 use craft\web\User;
 use flipbox\saml\core\AbstractPlugin;
 use flipbox\saml\core\containers\Saml2Container;
 use flipbox\saml\core\models\SettingsInterface;
+use flipbox\saml\core\records\AbstractProvider;
 use flipbox\saml\idp\fields\ExternalIdentity;
 use flipbox\saml\idp\models\Settings;
 use flipbox\saml\idp\records\ProviderIdentityRecord;

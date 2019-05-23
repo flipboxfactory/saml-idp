@@ -40,7 +40,7 @@ class Response extends Component
         Settings $settings
     ) {
         // Check Conditional login on the user
-        if ($this->isDenied($user, $serviceProvider)) {
+        if (! $this->isAllowed($user, $serviceProvider)) {
             throw new AccessDenied(
                 sprintf(
                     'Entity (%s) Access denied for user %s',
@@ -168,14 +168,18 @@ class Response extends Component
      * @param AbstractProvider $serviceProvider
      * @return bool
      */
-    protected function isDenied(User $user, AbstractProvider $serviceProvider)
+    protected function isAllowed(User $user, AbstractProvider $serviceProvider): bool
     {
+        $options = $serviceProvider->getGroupOptions();
+        if ($options->shouldDenyNoGroupAssigned($user)) {
+            return false;
+        }
+
         foreach ($user->getGroups() as $group) {
-            $options = $serviceProvider->getGroupOptions();
-            if ($options->shouldDeny($group->id)) {
-                return true;
+            if (! $options->shouldAllow($group->id)) {
+                return false;
             }
         }
-        return false;
+        return true;
     }
 }

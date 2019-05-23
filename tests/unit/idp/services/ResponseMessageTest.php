@@ -8,12 +8,12 @@ use Codeception\Test\Unit;
 use craft\elements\User;
 use craft\models\UserGroup;
 use flipbox\saml\core\exceptions\AccessDenied;
+use flipbox\saml\core\models\GroupOptions;
 use flipbox\saml\idp\Saml;
 use SAML2\Response;
 use Step\Unit\Common\AuthnRequest;
 use Step\Unit\Common\Metadata;
 use Step\Unit\Common\SamlPlugin;
-use flipbox\saml\core\models\GroupOptions;
 
 class ResponseMessageTest extends Unit
 {
@@ -77,11 +77,20 @@ class ResponseMessageTest extends Unit
                 ]),
             ],
         ]);
+        $sp = $this->metadataFactory->createTheirProviderWithSigningKey($this->module);
+        $sp->setGroupOptions(new GroupOptions([
+            'options' => [
+                'allow' => [
+                    1,
+                    2,
+                ],
+            ],
+        ]));
         $response = $this->module->getResponse()->create(
             $user,
             $authnRequest = $this->authnRequestFactory->createAuthnRequest(),
             $idp = $this->metadataFactory->createMyProviderWithKey($this->module),
-            $sp = $this->metadataFactory->createTheirProviderWithSigningKey($this->module),
+            $sp,
             $settings = $this->module->getSettings()
         );
 
@@ -89,7 +98,7 @@ class ResponseMessageTest extends Unit
 
         $sp->setGroupOptions(new GroupOptions([
             'options' => [
-                'deny' => [
+                'allow' => [
                     1,
                 ],
             ],
