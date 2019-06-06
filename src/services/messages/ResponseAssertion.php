@@ -66,7 +66,7 @@ class ResponseAssertion extends Component
         // Sign Assertions
         if ($firstDescriptor->wantAssertionsSigned()) {
             $assertion->setSignatureKey(
-                $identityProvider->signingXMLSecurityKey()
+                $identityProvider->keychainPrivateXmlSecurityKey()
             );
         }
 
