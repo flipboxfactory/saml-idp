@@ -23,11 +23,11 @@ class ResponseAssertion extends Component
 {
     public function create(
         User $user,
-        SamlAuthnRequest $authnRequest,
         ResponseMessage $response,
         ProviderRecord $identityProvider,
         ProviderRecord $serviceProvider,
-        Settings $settings
+        Settings $settings,
+        SamlAuthnRequest $authnRequest = null
     ) {
         $assertion = new Assertion();
 
@@ -41,10 +41,10 @@ class ResponseAssertion extends Component
 
         $assertion->setSubjectConfirmation([
             $this->createSubjectConfirmation(
-                $authnRequest,
                 $serviceProvider,
                 $user,
-                $settings
+                $settings,
+                $authnRequest
             ),
         ]);
 
@@ -99,16 +99,19 @@ class ResponseAssertion extends Component
     }
 
     /**
-     * @param SamlAuthnRequest $authnRequest
+     * @param AbstractProvider $serviceProvider
      * @param User $user
+     * @param Settings $settings
+     * @param SamlAuthnRequest|null $authnRequest
      * @return SubjectConfirmation
-     * @throws \Exception
+     * @throws \Throwable
+     * @throws \yii\base\Exception
      */
     protected function createSubjectConfirmation(
-        SamlAuthnRequest $authnRequest,
         AbstractProvider $serviceProvider,
         User $user,
-        Settings $settings
+        Settings $settings,
+        SamlAuthnRequest $authnRequest = null
     ) {
         /**
          * Subject Confirmation
@@ -134,16 +137,18 @@ class ResponseAssertion extends Component
             $subjectConfirmationData = new SubjectConfirmationData()
         );
 
-        $subjectConfirmationData->setInResponseTo($authnRequest->getId());
         $subjectConfirmationData->setNotOnOrAfter(
             (new \DateTime(
                 $settings->messageNotOnOrAfter
             ))->getTimestamp()
         );
 
-        $subjectConfirmationData->setRecipient(
-            $authnRequest->getAssertionConsumerServiceURL()
-        );
+        if ($authnRequest) {
+            $subjectConfirmationData->setInResponseTo($authnRequest->getId());
+            $subjectConfirmationData->setRecipient(
+                $authnRequest->getAssertionConsumerServiceURL()
+            );
+        }
 
         $subjectConfirmation->setNameID(
             $nameId = new NameID()

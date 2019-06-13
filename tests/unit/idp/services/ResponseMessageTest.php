@@ -88,10 +88,10 @@ class ResponseMessageTest extends Unit
         ]));
         $response = $this->module->getResponse()->create(
             $user,
-            $authnRequest = $this->authnRequestFactory->createAuthnRequest(),
             $idp = $this->metadataFactory->createMyProviderWithKey($this->module),
             $sp,
-            $settings = $this->module->getSettings()
+            $settings = $this->module->getSettings(),
+            $authnRequest = $this->authnRequestFactory->createAuthnRequest()
         );
 
         $this->assertInstanceOf(Response::class, $response);
@@ -104,11 +104,14 @@ class ResponseMessageTest extends Unit
             ],
         ]));
 
+        $this->module->getResponse()->finalizeWithAuthnRequest(
+            $response,
+            $authnRequest
+        );
 
         $this->expectException(AccessDenied::class);
         $response = $this->module->getResponse()->create(
             $user,
-            $authnRequest,
             $idp,
             $sp,
             $settings

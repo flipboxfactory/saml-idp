@@ -34,10 +34,10 @@ class Response extends Component
      */
     public function create(
         User $user,
-        SamlAuthnRequest $authnRequest,
         Provider $identityProvider,
         Provider $serviceProvider,
-        Settings $settings
+        Settings $settings,
+        SamlAuthnRequest $authnRequest = null
     ) {
         // Check Conditional login on the user
         if (! $this->isAllowed($user, $serviceProvider)) {
@@ -51,15 +51,15 @@ class Response extends Component
         }
 
 
-        $response = $this->createGeneral($authnRequest, $identityProvider, $serviceProvider);
+        $response = $this->createGeneral($identityProvider, $serviceProvider);
 
         Saml::getInstance()->getResponseAssertion()->create(
             $user,
-            $authnRequest,
             $response,
             $identityProvider,
             $serviceProvider,
-            $settings
+            $settings,
+            $authnRequest
         );
 
 
@@ -85,7 +85,6 @@ class Response extends Component
      * @throws \Exception
      */
     protected function createGeneral(
-        SamlAuthnRequest $authnRequest,
         Provider $identityProvider,
         Provider $serviceProvider
     ) {
@@ -100,12 +99,9 @@ class Response extends Component
 
         $response->setId($requestId = MessageHelper::generateId());
         $response->setDestination(
-            $authnRequest->getAssertionConsumerServiceURL() ?? $acsService->getLocation()
+            $acsService->getLocation()
         );
         $response->setConsent(static::CONSENT_IMPLICIT);
-        $response->setInResponseTo(
-            $authnRequest->getId()
-        );
         $response->setStatus(
             [
                 'Code' => Constants::STATUS_SUCCESS,
@@ -113,9 +109,6 @@ class Response extends Component
         );
         $response->setIssueInstant(
             (new \DateTime())->getTimestamp()
-        );
-        $response->setRelayState(
-            $authnRequest->getRelayState()
         );
 
         return $response;
@@ -150,11 +143,13 @@ class Response extends Component
 
         $response = $this->create(
             $user,
-            $authnRequest,
             $identityProvider,
             $serviceProvider,
-            Saml::getInstance()->getSettings()
+            Saml::getInstance()->getSettings(),
+            $authnRequest
         );
+
+        Saml::getInstance()->getResponse()->finalizeWithAuthnRequest($response, $authnRequest);
 
         Factory::send($response, $serviceProvider);
     }
@@ -162,6 +157,20 @@ class Response extends Component
     /**
      * Utils
      */
+
+    /**
+     * @param ResponseMessage $response
+     * @param SamlAuthnRequest $authnRequest
+     */
+    public function finalizeWithAuthnRequest(ResponseMessage $response, SamlAuthnRequest $authnRequest)
+    {
+        $response->setInResponseTo(
+            $authnRequest->getId()
+        );
+        $response->setRelayState(
+            $authnRequest->getRelayState()
+        );
+    }
 
     /**
      * @param User $user

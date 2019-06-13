@@ -72,7 +72,57 @@ class LoginController extends AbstractController
             //create response and send back to the sp
             $response = Saml::getInstance()->getResponse()->create(
                 $user,
-                $authnRequest,
+                $identityProvider,
+                $serviceProvider,
+                Saml::getInstance()->getSettings(),
+                $authnRequest
+            );
+
+            Saml::getInstance()->getResponse()->finalizeWithAuthnRequest($response, $authnRequest);
+
+            $identity = Saml::getInstance()->getProviderIdentity()->findByUserAndProviderOrCreate(
+                $user,
+                $serviceProvider
+            );
+
+            Saml::getInstance()->getProviderIdentity()->save($identity);
+
+            Factory::send($response, $serviceProvider);
+            return;
+        }
+
+        //save to session and redirect to login
+        Saml::getInstance()->getSession()->setAuthnRequest($authnRequest);
+
+        $this->redirect(
+            Craft::$app->config->general->getLoginPath()
+        );
+        return;
+    }
+
+    public function actionRequest($uid)
+    {
+        //build uid condition
+        $uidCondition = [
+            'uid' => $uid,
+        ];
+
+        /**
+         * @var ProviderRecord $sp
+         */
+        if (! $serviceProvider = Saml::getInstance()->getProvider()->findBySp(
+            $uidCondition
+        )->one()
+        ) {
+            throw new InvalidMetadata('IDP Metadata Not found!');
+        }
+
+        if ($user = Craft::$app->getUser()->getIdentity()) {
+            $identityProvider = Saml::getInstance()->getProvider()->findOwn();
+
+            //create response and send back to the sp
+            $response = Saml::getInstance()->getResponse()->create(
+                $user,
                 $identityProvider,
                 $serviceProvider,
                 Saml::getInstance()->getSettings()
@@ -90,7 +140,9 @@ class LoginController extends AbstractController
         }
 
         //save to session and redirect to login
-        Saml::getInstance()->getSession()->setAuthnRequest($authnRequest);
+        \Craft::$app->user->setReturnUrl(
+            \Craft::$app->request->getAbsoluteUrl()
+        );
 
         $this->redirect(
             Craft::$app->config->general->getLoginPath()

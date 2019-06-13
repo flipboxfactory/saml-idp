@@ -68,6 +68,7 @@ class SessionTest extends Unit
 
         $this->module->getSession()->remove();
         $this->assertNull($this->module->getSession()->getAuthnRequest());
+        $this->module->getResponse()->createAndSendFromSession();
     }
 
     public function testSessionRelayState()
