@@ -12,6 +12,7 @@ use Craft;
 use flipbox\saml\core\controllers\messages\AbstractController;
 use flipbox\saml\core\exceptions\InvalidMessage;
 use flipbox\saml\core\helpers\MessageHelper;
+use flipbox\saml\core\helpers\SerializeHelper;
 use flipbox\saml\core\services\bindings\Factory;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
@@ -128,6 +129,8 @@ class LoginController extends AbstractController
                 Saml::getInstance()->getSettings()
             );
 
+            $response->setRelayState($this->getRelayState());
+
             $identity = Saml::getInstance()->getProviderIdentity()->findByUserAndProviderOrCreate(
                 $user,
                 $serviceProvider
@@ -158,14 +161,15 @@ class LoginController extends AbstractController
         $relayState = \Craft::$app->request->getParam('RelayState');
         if (is_string($relayState) && ! empty($relayState)) {
             try {
-                $relayStateDecoded = base64_decode($relayState);
-                Saml::info('RelayState: ' . $relayStateDecoded);
-                Saml::info('RelayState from authnRequest: ' . $authnRequest->getRelayState());
+                // if it's not base64'd we need to encode it.
+                $relayState = SerializeHelper::isBase64String($relayState) ? $relayState : base64_encode($relayState);
+                Saml::info('RelayState: ' . $relayState);
             } catch (\Exception $e) {
-                Saml::warning(
+                Saml::info(
                     sprintf(
-                        'RelayState must be base64 encoded: %s',
-                        is_string($relayState) ? $relayState : ''
+                        'Error with relay state: %s - %s',
+                        (is_string($relayState) ? $relayState : ''),
+                        $e->getTraceAsString()
                     )
                 );
             }

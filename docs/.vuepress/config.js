@@ -30,6 +30,7 @@ module.exports = {
                     children: [
                         ['/', 'Introduction'],
                         ['/installation', 'Installation / Upgrading'],
+                        ['/initiating-sso', 'Initiating SSO'],
                         ['/support', 'Support'],
                     ]
                 },
