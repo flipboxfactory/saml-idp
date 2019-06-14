@@ -1,6 +1,6 @@
 # SAML IDP for Craft CMS
 [![Latest Version](https://img.shields.io/github/release/flipboxfactory/saml-idp.svg?style=flat-square)](https://github.com/flipboxfactory/saml-idp/releases)
-[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
+[![Software License](https://img.shields.io/badge/license-Proprietary-brightgreen.svg?style=flat-square)](/LICENSE.md)
 [![Build Status](https://img.shields.io/travis/flipboxfactory/saml-idp/master.svg?style=flat-square)](https://travis-ci.com/flipboxfactory/saml-idp)
 [![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/flipboxfactory/saml-idp.svg?style=flat-square)](https://scrutinizer-ci.com/g/flipboxfactory/saml-idp/code-structure)
 [![Quality Score](https://img.shields.io/scrutinizer/g/flipboxfactory/saml-idp.svg?style=flat-square)](https://scrutinizer-ci.com/g/flipboxfactory/saml-idp)
