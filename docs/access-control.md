@@ -1,9 +1,10 @@
 # Access Control
 
-Login can be controlled to specific Service Providers (SP) based on Craft 
-user groups. These controls are found under the "Configure" tab in the SP configuration. 
+SAML Login access can be controlled at the Service Providers (SP) based on Craft 
+user groups. These controls are found under the "Configure" tab in individual SP configuration. 
 A number of combinations can be used but "Allow Any" and "No Group Assigned" are checked 
-first, in that order.
+first, in that order. If the user is denied, an exception will be thrown with a HTTP 
+status code of 403.
 
 ## Allow Any
 Toggling "Allow Any" will let any user login to the SP.
