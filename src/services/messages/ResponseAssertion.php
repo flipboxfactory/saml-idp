@@ -297,7 +297,7 @@ class ResponseAssertion extends Component
                 continue;
             }
 
-            $attribute[] = $group->name;
+            $attribute[] = $group->handle;
         }
 
         return $attribute;

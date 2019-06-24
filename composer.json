@@ -1,7 +1,7 @@
 {
   "name": "flipboxfactory/saml-idp",
   "description": "SAML Identity Provider",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "type": "craft-plugin",
   "keywords": [
     "cms",

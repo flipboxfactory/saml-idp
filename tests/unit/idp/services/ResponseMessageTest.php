@@ -110,6 +110,21 @@ class ResponseMessageTest extends Unit
         );
 
         $this->expectException(AccessDenied::class);
+        $user = new User([
+            'id' => 1,
+            'firstName' => 'Damien',
+            'lastName' => 'Smrt',
+            'email' => 'damien@flipboxdigital.com',
+            'username' => 'damien@flipboxdigital.com',
+            //Make sure to have a db dump that works with
+            'groups' => [
+                new UserGroup([
+                    'id' => 2,
+                    'name' => 'UG2',
+                    'handle' => 'ug2',
+                ]),
+            ],
+        ]);
         $response = $this->module->getResponse()->create(
             $user,
             $idp,

@@ -180,15 +180,19 @@ class Response extends Component
     protected function isAllowed(User $user, AbstractProvider $serviceProvider): bool
     {
         $options = $serviceProvider->getGroupOptions();
-        if ($options->shouldDenyNoGroupAssigned($user)) {
-            return false;
+        if ($options->shouldAllowAny()) {
+            return true;
+        }
+
+        if ($options->shouldAllowNoGroupAssigned($user)) {
+            return true;
         }
 
         foreach ($user->getGroups() as $group) {
-            if (! $options->shouldAllow($group->id)) {
-                return false;
+            if ($options->shouldAllow($group->id)) {
+                return true;
             }
         }
-        return true;
+        return false;
     }
 }

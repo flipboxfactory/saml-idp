@@ -31,6 +31,7 @@ module.exports = {
                         ['/', 'Introduction'],
                         ['/installation', 'Installation / Upgrading'],
                         ['/initiating-sso', 'Initiating SSO'],
+                        ['/access-control', 'Access Control'],
                         ['/support', 'Support'],
                     ]
                 },
