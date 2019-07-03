@@ -161,19 +161,7 @@ class LoginController extends AbstractController
     {
         $relayState = \Craft::$app->request->getParam('RelayState');
         if (is_string($relayState) && ! empty($relayState)) {
-            try {
-                // if it's not base64'd we need to encode it.
-                $relayState = SerializeHelper::isBase64String($relayState) ? $relayState : base64_encode($relayState);
-                Saml::info('RelayState: ' . $relayState);
-            } catch (\Exception $e) {
-                Saml::info(
-                    sprintf(
-                        'Error with relay state: %s - %s',
-                        (is_string($relayState) ? $relayState : ''),
-                        $e->getTraceAsString()
-                    )
-                );
-            }
+            Saml::info('RelayState: ' . $relayState);
         } else {
             $relayState = '';
         }
