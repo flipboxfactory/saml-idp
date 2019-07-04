@@ -159,6 +159,6 @@ class LoginController extends AbstractController
      */
     protected function getRelayState(): string
     {
-        return \Craft::$app->request->getParam('RelayState');
+        return \Craft::$app->request->getParam('RelayState') ?? '';
     }
 }
