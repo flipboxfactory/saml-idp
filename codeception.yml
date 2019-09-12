@@ -26,6 +26,7 @@ modules:
       configFile: 'tests/_craft/config/test.php'
       edition: 1
       setupDb:
+        clean: true
         setupCraft: true
       plugins:
         - class: \flipbox\saml\idp\Saml
