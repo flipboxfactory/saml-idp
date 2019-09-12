@@ -34,7 +34,7 @@ class ProviderRecord extends AbstractProvider implements ProviderInterface
         return implode(
             DIRECTORY_SEPARATOR,
             [
-                Saml::getInstance()->getSettings()->loginRequestEndpoint,
+                Saml::getInstance()->getSettings()->getDefaultLoginRequestEndpoint(),
                 $this->uid,
             ]
         );
@@ -51,7 +51,7 @@ class ProviderRecord extends AbstractProvider implements ProviderInterface
         return implode(
             DIRECTORY_SEPARATOR,
             [
-                Saml::getInstance()->getSettings()->logoutRequestEndpoint,
+                Saml::getInstance()->getSettings()->getDefaultLogoutRequestEndpoint(),
                 $this->uid,
             ]
         );
