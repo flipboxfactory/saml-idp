@@ -2,7 +2,6 @@ module.exports = {
     title: 'SAML Identity Provider - Craft CMS SSO',
     description: 'SAML Identity Provider plugin for Craft CMS',
     base: '/',
-    theme: 'flipbox',
     themeConfig: {
         logo: '/icon.svg',
         docsRepo: 'flipboxfactory/saml-idp',
