@@ -16,6 +16,7 @@ services:
             XDEBUG_IDEKEY: "PHPSTORM"
             DB_SERVER: db
             DB_USER: root
+            DB_PORT: 3306
             DB_PASSWORD: password
             DB_DATABASE: test
             DB_DRIVER: mysql
