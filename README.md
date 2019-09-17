@@ -6,9 +6,6 @@
 [![Quality Score](https://img.shields.io/scrutinizer/g/flipboxfactory/saml-idp.svg?style=flat-square)](https://scrutinizer-ci.com/g/flipboxfactory/saml-idp)
 [![Total Downloads](https://img.shields.io/packagist/dt/flipboxfactory/saml-idp.svg?style=flat-square)](https://packagist.org/packages/flipboxfactory/saml-idp)
 
-## Notice
-This is in active development and will be considered as such until version 1.0.0 is release. Please give it a try and let us know what you think but _use at your own risk_.
-
 ## Installation
 
 To install, use composer:
@@ -34,4 +31,4 @@ Please see [CONTRIBUTING](https://github.com/flipboxfactory/saml-idp/blob/master
 
 ## License
 
-The MIT License (MIT). Please see [License File](https://github.com/flipboxfactory/saml-idp/blob/master/LICENSE) for more information.
+Please see [License File](https://github.com/flipboxfactory/saml-idp/blob/master/LICENSE) for more information.
