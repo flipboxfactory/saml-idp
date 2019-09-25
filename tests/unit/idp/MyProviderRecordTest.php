@@ -12,7 +12,7 @@ use flipbox\saml\idp\Saml;
 use RobRichards\XMLSecLibs\XMLSecurityKey;
 use SAML2\Constants;
 use SAML2\XML\md\EntityDescriptor;
-use SAML2\XML\md\IndexedEndpointType;
+use SAML2\XML\md\EndpointType;
 use Step\Unit\Common\Metadata;
 use Step\Unit\Common\SamlPlugin;
 
@@ -96,11 +96,11 @@ class MyProviderRecordTest extends Unit
                 )
             );
 
-            /** @var IndexedEndpointType $endpoint */
+            /** @var EndpointType $endpoint */
             $endpoint = $descriptor->getSingleSignOnService()[0];
 
             $this->assertInstanceOf(
-                IndexedEndpointType::class,
+                EndpointType::class,
                 $endpoint
             );
 
