@@ -18,6 +18,7 @@ use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
 use flipbox\saml\idp\traits\SamlPluginEnsured;
 use SAML2\AuthnRequest;
+use flipbox\saml\core\exceptions\InvalidMetadata;
 
 class LoginController extends AbstractController
 {
