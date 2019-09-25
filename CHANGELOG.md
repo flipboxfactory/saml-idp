@@ -1,5 +1,10 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 1.0.3 - 2019-09-17
+
+### Fixed 
+- Adding protocolSupportEnumeration and wantsAuthnRequestsSigned to the metadata
+
 ## 1.0.0 - 2019-09-17
 
 ### Changed

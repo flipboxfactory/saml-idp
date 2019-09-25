@@ -14,6 +14,12 @@ use flipbox\saml\core\helpers\ClaimTypes;
 
 class Settings extends AbstractSettings implements SettingsInterface
 {
+
+    /**
+     * @var bool
+     */
+    public $wantsAuthnRequestsSigned = false;
+
     /**
      * SubjectConfirmationData and Conditions datetimes
      * https://stackoverflow.com/a/29546696/1590910
