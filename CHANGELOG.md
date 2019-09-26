@@ -1,5 +1,12 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+
+## 1.0.4 - 2019-09-25
+
+### Fixed
+- Fixing more xsd schema compatibility. Changed message ids to be compatible.
+- Fixed exception when the user tries to logout (SLO) when they are already logged out.
+
 ## 1.0.3 - 2019-09-17
 
 ### Fixed 
@@ -10,7 +17,7 @@
 ### Changed
 - Various template updates to specify IDP
 ### Added
-- Environment Variablel Support
+- Environment Variable Support
 
 ## 0.0.8 - 2019-07-08
 
