@@ -1,5 +1,9 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 1.0.5 - 2019-09-26
+
+### Fixed
+- Fixed issue with encryption assertions
 
 ## 1.0.4 - 2019-09-25
 
