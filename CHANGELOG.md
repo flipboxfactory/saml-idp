@@ -1,5 +1,10 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+
+## 1.0.6 - 2019-10-07
+### Removed
+- flipboxfactory/craft-ember package to easy updates with dependancies.
+
 ## 1.0.5 - 2019-09-26
 
 ### Fixed

@@ -2,7 +2,6 @@
 
 namespace flipbox\saml\idp\records;
 
-use flipbox\ember\records\traits\StateAttribute;
 use flipbox\saml\core\models\SettingsInterface;
 use flipbox\saml\core\records\AbstractProvider;
 use flipbox\saml\core\records\ProviderInterface;
@@ -15,9 +14,6 @@ use flipbox\saml\idp\Saml;
  */
 class ProviderRecord extends AbstractProvider implements ProviderInterface
 {
-
-    use StateAttribute;
-
     /**
      * The table alias
      */
