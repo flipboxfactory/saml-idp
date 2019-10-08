@@ -48,11 +48,20 @@ class ResponseAssertion extends Component
             ),
         ]);
 
+        $urlParts = parse_url(
+            $response->getDestination()
+        );
+
+        if (isset($urlParts['scheme']) && isset($urlParts['host'])) {
+            // allow all
+            $assertion->setValidAudiences([
+                $urlParts['scheme'] . '://' .$urlParts['host']
+            ]);
+        }
+        
         $this->createConditions($assertion, $settings);
 
-
         $this->createAuthnStatement($assertion);
-
 
         $this->setAssertionAttributes(
             $user,

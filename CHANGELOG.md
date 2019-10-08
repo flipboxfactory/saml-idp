@@ -1,5 +1,8 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 1.0.7 - 2019-10-08
+### Added
+- Added AudienceRestriction to the Response message.
 
 ## 1.0.6 - 2019-10-07
 ### Removed
