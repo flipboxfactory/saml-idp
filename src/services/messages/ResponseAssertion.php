@@ -55,7 +55,8 @@ class ResponseAssertion extends Component
         if (isset($urlParts['scheme']) && isset($urlParts['host'])) {
             // allow all
             $assertion->setValidAudiences([
-                $urlParts['scheme'] . '://' .$urlParts['host']
+                $urlParts['scheme'] . '://' .$urlParts['host'],
+                $urlParts['scheme'] . '://' .$urlParts['host'] . '/'
             ]);
         }
         
