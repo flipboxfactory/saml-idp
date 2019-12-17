@@ -15,6 +15,7 @@ use flipbox\saml\idp\Saml;
 use SAML2\AuthnRequest as SamlAuthnRequest;
 use SAML2\Constants;
 use SAML2\Response as ResponseMessage;
+use SAML2\XML\saml\Issuer;
 use yii\base\Event;
 
 class Response extends Component
@@ -99,8 +100,11 @@ class Response extends Component
             Constants::BINDING_HTTP_POST
         ) ?? $serviceProvider->firstSpAcsService();
         $response = new ResponseMessage();
+        $issuer = new Issuer();
+        $issuer->setFormat(Constants::NAMEID_ENTITY);
+        $issuer->setValue($identityProvider->getEntityId());
         $response->setIssuer(
-            $identityProvider->getEntityId()
+            $issuer
         );
 
         $response->setId($requestId = MessageHelper::generateId());
