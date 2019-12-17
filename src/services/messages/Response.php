@@ -67,6 +67,12 @@ class Response extends Component
             $identityProvider->keychainPrivateXmlSecurityKey()
         );
 
+        $response->setCertificates(
+            [
+                $identityProvider->keychain->getDecryptedCertificate(),
+            ]
+        );
+
 
         /**
          * Kick off event here so people can manipulate this object if needed
@@ -105,6 +111,7 @@ class Response extends Component
         $response->setStatus(
             [
                 'Code' => Constants::STATUS_SUCCESS,
+                'Message' => Constants::STATUS_SUCCESS,
             ]
         );
         $response->setIssueInstant(

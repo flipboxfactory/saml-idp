@@ -55,11 +55,11 @@ class ResponseAssertion extends Component
         if (isset($urlParts['scheme']) && isset($urlParts['host'])) {
             // allow all
             $assertion->setValidAudiences([
-                $urlParts['scheme'] . '://' .$urlParts['host'],
-                $urlParts['scheme'] . '://' .$urlParts['host'] . '/'
+                $urlParts['scheme'] . '://' . $urlParts['host'],
+                $urlParts['scheme'] . '://' . $urlParts['host'] . '/',
             ]);
         }
-        
+
         $this->createConditions($assertion, $settings);
 
         $this->createAuthnStatement($assertion);
@@ -75,6 +75,11 @@ class ResponseAssertion extends Component
 
         // Sign Assertions
         if ($firstDescriptor->wantAssertionsSigned()) {
+            $assertion->setCertificates(
+                [
+                    $identityProvider->keychain->getDecryptedCertificate(),
+                ]
+            );
             $assertion->setSignatureKey(
                 $identityProvider->keychainPrivateXmlSecurityKey()
             );
@@ -165,6 +170,9 @@ class ResponseAssertion extends Component
         );
 
         $nameId->setFormat(Constants::NAMEID_UNSPECIFIED);
+        $nameId->setNameQualifier(
+            $settings->getEntityId()
+        );
         $nameId->setValue(
             $serviceProvider->assignNameId($user)
         );
@@ -244,7 +252,7 @@ class ResponseAssertion extends Component
         );
 
         $assertion->setAuthnContextClassRef(
-            Constants::AC_PASSWORD
+            Constants::AC_PASSWORD_PROTECTED_TRANSPORT
         );
     }
 
