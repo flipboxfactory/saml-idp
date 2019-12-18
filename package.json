@@ -9,6 +9,8 @@
   "author": "Flipbox Digital",
   "license": "MIT",
   "devDependencies": {
+    "vue": "^2.6.11",
+    "vue-server-renderer": "^2.6.11",
     "vuepress": "^1.1.0"
   }
 }
