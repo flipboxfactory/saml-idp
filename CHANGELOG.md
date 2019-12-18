@@ -1,5 +1,9 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 1.0.13 - 2019-12-17
+### Fixed 
+- Fixed issue where the after Response message creation wasn't passing the response to the event correctly.
+
 ## 1.0.7 - 2019-10-08
 ### Added
 - Added AudienceRestriction to the Response message.

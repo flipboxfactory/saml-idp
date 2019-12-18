@@ -8,6 +8,7 @@ use flipbox\saml\core\exceptions\AccessDenied;
 use flipbox\saml\core\helpers\MessageHelper;
 use flipbox\saml\core\records\AbstractProvider;
 use flipbox\saml\core\services\bindings\Factory;
+use flipbox\saml\idp\events\ResponseEvent;
 use flipbox\saml\idp\models\Settings;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\records\ProviderRecord as Provider;
@@ -78,8 +79,9 @@ class Response extends Component
         /**
          * Kick off event here so people can manipulate this object if needed
          */
-        $event = new Event();
-        $event->data = $response;
+        $event = new ResponseEvent();
+        $event->response = $response;
+        $event->user = $user;
         $this->trigger(static::EVENT_AFTER_MESSAGE_CREATED, $event);
 
         return $response;
