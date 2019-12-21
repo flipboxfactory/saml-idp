@@ -69,7 +69,7 @@ class SessionTest extends Unit
 
         $this->module->getSession()->remove();
         $this->assertNull($this->module->getSession()->getAuthnRequest());
-        (new LoginController())->actionAfterLogin();
+        (new LoginController('1234',$this->module))->actionAfterLogin();
     }
 
     public function testSessionRelayState()
