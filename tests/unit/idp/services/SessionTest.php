@@ -6,6 +6,7 @@ namespace tests\unit\idp\services;
 
 use Codeception\Scenario;
 use Codeception\Test\Unit;
+use flipbox\saml\idp\controllers\LoginController;
 use flipbox\saml\idp\Saml;
 use flipbox\saml\idp\services\Session;
 use Step\Unit\Common\AuthnRequest;
@@ -68,7 +69,7 @@ class SessionTest extends Unit
 
         $this->module->getSession()->remove();
         $this->assertNull($this->module->getSession()->getAuthnRequest());
-        $this->module->getResponse()->createAndSendFromSession();
+        (new LoginController())->actionAfterLogin();
     }
 
     public function testSessionRelayState()
