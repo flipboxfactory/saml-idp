@@ -62,18 +62,6 @@ class Saml extends AbstractPlugin
     public function initEvents()
     {
         /**
-         * After login
-         */
-        Event::on(
-            User::class,
-            User::EVENT_AFTER_LOGIN,
-            [
-                $this->getResponse(),
-                'createAndSendFromSession',
-            ]
-        );
-
-        /**
          * CP routes
          */
         Event::on(

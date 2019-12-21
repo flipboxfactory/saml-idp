@@ -9,6 +9,7 @@
 namespace flipbox\saml\idp\controllers;
 
 use Craft;
+use craft\helpers\UrlHelper;
 use flipbox\saml\core\controllers\messages\AbstractController;
 use flipbox\saml\core\exceptions\InvalidMessage;
 use flipbox\saml\core\helpers\MessageHelper;
@@ -19,6 +20,7 @@ use flipbox\saml\idp\Saml;
 use flipbox\saml\idp\traits\SamlPluginEnsured;
 use SAML2\AuthnRequest;
 use flipbox\saml\core\exceptions\InvalidMetadata;
+use yii\web\HttpException;
 
 class LoginController extends AbstractController
 {
@@ -97,10 +99,53 @@ class LoginController extends AbstractController
         //save to session and redirect to login
         Saml::getInstance()->getSession()->setAuthnRequest($authnRequest);
 
+        \Craft::$app->user->setReturnUrl(
+            UrlHelper::actionUrl(
+                Saml::getInstance()->getHandle() . '/login/after-login'
+            )
+        );
+
         $this->redirect(
             Craft::$app->config->general->getLoginPath()
         );
         return;
+    }
+
+    public function actionAfterLogin()
+    {
+
+        if (! $authnRequest = Saml::getInstance()->getSession()->getAuthnRequest()) {
+            return;
+        }
+
+        // Clear the session
+        Saml::getInstance()->getSession()->remove();
+
+        if (! $user = \Craft::$app->getUser()->getIdentity()) {
+            throw new HttpException('Unknown Identity.');
+        }
+
+        // load our container
+        Saml::getInstance()->loadSaml2Container();
+
+        /** @var ProviderRecord $serviceProvider */
+        $serviceProvider = Saml::getInstance()->getProvider()->findByEntityId(
+            MessageHelper::getIssuer($authnRequest->getIssuer())
+        )->one();
+
+        $identityProvider = Saml::getInstance()->getProvider()->findOwn();
+
+        $response = Saml::getInstance()->getResponse()->create(
+            $user,
+            $identityProvider,
+            $serviceProvider,
+            Saml::getInstance()->getSettings(),
+            $authnRequest
+        );
+
+        Saml::getInstance()->getResponse()->finalizeWithAuthnRequest($response, $authnRequest);
+
+        Factory::send($response, $serviceProvider);
     }
 
     public function actionRequest($uid)

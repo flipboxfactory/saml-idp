@@ -1,4 +1,7 @@
 # Release Notes for Craft CMS Plugin SAML IDP
+## UNRELEASED
+### Fixed
+- Fixed issue when login is via ajax call. This ends up being a very nice enhancement, cleaning up the login process when a user isn't already logged in!
 
 ## 1.0.13 - 2019-12-17
 ### Fixed 

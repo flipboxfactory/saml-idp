@@ -129,45 +129,6 @@ class Response extends Component
 
 
     /**
-     * @throws \flipbox\saml\core\exceptions\InvalidMetadata
-     */
-    public function createAndSendFromSession()
-    {
-        if (! $authnRequest = Saml::getInstance()->getSession()->getAuthnRequest()) {
-            return;
-        }
-
-        // Clear the session
-        Saml::getInstance()->getSession()->remove();
-
-        if (! $user = \Craft::$app->getUser()->getIdentity()) {
-            return;
-        }
-
-        // load our container
-        Saml::getInstance()->loadSaml2Container();
-
-        /** @var ProviderRecord $serviceProvider */
-        $serviceProvider = Saml::getInstance()->getProvider()->findByEntityId(
-            MessageHelper::getIssuer($authnRequest->getIssuer())
-        )->one();
-
-        $identityProvider = Saml::getInstance()->getProvider()->findOwn();
-
-        $response = $this->create(
-            $user,
-            $identityProvider,
-            $serviceProvider,
-            Saml::getInstance()->getSettings(),
-            $authnRequest
-        );
-
-        Saml::getInstance()->getResponse()->finalizeWithAuthnRequest($response, $authnRequest);
-
-        Factory::send($response, $serviceProvider);
-    }
-
-    /**
      * Utils
      */
 
