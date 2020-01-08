@@ -1,4 +1,9 @@
 # Release Notes for Craft CMS Plugin SAML IDP
+
+# 1.1.1 - 2020-01-07
+### Fixed
+- Fixing migration issue with craft installs with prefixes.
+
 # 1.1.0 - 2020-01-07
 ### Fixed
 - Fixing issue with requiring admin when project config when `allowAdminChanges` general config is set.
