@@ -14,7 +14,7 @@ class PreviewController extends AbstractPreviewController
 
     public function actionMapping()
     {
-        $this->requireAdmin();
+        $this->requireAdmin(false);
 
         Saml::getInstance()->loadSaml2Container();
         $settings = Saml::getInstance()->getSettings();

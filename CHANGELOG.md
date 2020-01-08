@@ -1,4 +1,16 @@
 # Release Notes for Craft CMS Plugin SAML IDP
+# 1.1.0 - 2020-01-07
+### Fixed
+- Fixing issue with requiring admin when project config when `allowAdminChanges` general config is set.
+- Duplicate `metadata` html attribute id on the edit page
+- Fixed issue with large Metadata too big for the db metadata column (requires migration) https://github.com/flipboxfactory/saml-sp/issues/48
+
+### Added
+- Support for Saving Metadata via url (requires migration) https://github.com/flipboxfactory/saml-sp/issues/47
+
+### Changed
+- Valid Audience in the Response is now set to the entity id of the destination.
+
 ## 1.0.14 - 2019-12-21
 ### Fixed
 - Fixed issue when login is via ajax call. This ends up being a very nice enhancement, cleaning up the login process when a user isn't already logged in!
