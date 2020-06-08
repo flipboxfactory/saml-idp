@@ -3,16 +3,16 @@ language: php
 sudo: false
 
 php:
-  - 7.0
   - 7.1
   - 7.2
   - 7.3
+  - 7.4
 
 services:
   - mysql
 
 before_install:
-  - nvm install 8
+  - nvm install 12
   - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
 
 install:
