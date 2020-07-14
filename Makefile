@@ -1,13 +1,7 @@
 TEST_NAME :=
 DEBUG :=
-test: test-unit
-clean-test: clean-install test-unit
-
-test-unit: phpcbf phpcs
-	docker-compose run --rm web sh -c "php ./vendor/bin/codecept run unit ${TEST_NAME} ${DEBUG} --coverage --coverage-html"
-
-test-unit-debug: DEBUG := -vvv -d
-test-unit-debug: test-unit
+test:
+	docker-compose run test
 
 clean:
 	rm -rf vendor/ composer.lock cpresources web

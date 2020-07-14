@@ -1,5 +1,9 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+# 1.2.0 - 2020-07-14
+### Changed
+- Updated `simplesamlphp/saml2`
+
 # 1.1.0.2 - 2020-01-08
 ### Fixed
 - Fixing issue with Craft 3.2 twig error within the editableTable
