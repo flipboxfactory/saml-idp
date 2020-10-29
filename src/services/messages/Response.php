@@ -53,7 +53,7 @@ class Response extends Component
         }
 
 
-        $response = $this->createGeneral($identityProvider, $serviceProvider);
+        $response = $this->createGeneral($identityProvider, $serviceProvider, $authnRequest);
 
         Saml::getInstance()->getResponseAssertion()->create(
             $user,
@@ -95,7 +95,8 @@ class Response extends Component
      */
     protected function createGeneral(
         Provider $identityProvider,
-        Provider $serviceProvider
+        Provider $serviceProvider,
+        \SAML2\AuthnRequest $authnRequest
     ) {
 
         $acsService = $serviceProvider->firstSpAcsService(
@@ -111,7 +112,7 @@ class Response extends Component
 
         $response->setId($requestId = MessageHelper::generateId());
         $response->setDestination(
-            $acsService->getLocation()
+            $authnRequest->getAssertionConsumerServiceURL()
         );
         $response->setConsent(static::CONSENT_IMPLICIT);
         $response->setStatus(
