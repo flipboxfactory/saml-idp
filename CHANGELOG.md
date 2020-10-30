@@ -1,18 +1,22 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
-# 1.2.0 - 2020-07-14
+## 1.2.2 - 2020-10-29
+### Fixed
+- Issue where SP and IdP plugin couldn't be installed on the same craft db due to table conflicts.
+
+## 1.2.0 - 2020-07-14
 ### Changed
 - Updated `simplesamlphp/saml2`
 
-# 1.1.0.2 - 2020-01-08
+## 1.1.0.2 - 2020-01-08
 ### Fixed
 - Fixing issue with Craft 3.2 twig error within the editableTable
 
-# 1.1.0.1 - 2020-01-08
+## 1.1.0.1 - 2020-01-08
 ### Fixed
 - Fixing migration issue with craft installs with prefixes.
 
-# 1.1.0 - 2020-01-07
+## 1.1.0 - 2020-01-07
 ### Fixed
 - Fixing issue with requiring admin when project config when `allowAdminChanges` general config is set.
 - Duplicate `metadata` html attribute id on the edit page
