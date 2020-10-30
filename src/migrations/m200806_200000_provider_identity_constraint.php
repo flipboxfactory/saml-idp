@@ -11,16 +11,17 @@ use flipbox\saml\idp\Saml;
 class m200806_200000_provider_identity_constraint extends abstractMigration
 {
 
-    protected static function getIdentityTableName() {
+    protected static function getIdentityTableName()
+    {
         return ProviderIdentityRecord::tableName();
     }
 
     public function safeUp()
     {
-        try{
+        try {
             // might not need this ... move on, on exception
             parent::safeUp();
-        }catch(\Exception $e) {
+        } catch (\Exception $e) {
             Saml::warning($e->getMessage() . ' -> ' . $e->getTraceAsString());
         }
     }

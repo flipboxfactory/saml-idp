@@ -1,11 +1,5 @@
 filter:
     excluded_paths: [tests/*, src/web/assets/*/dist/*]
-build:
-    nodes:
-        analysis:
-            tests:
-                override:
-                    - php-scrutinizer-run
 checks:
     php:
         code_rating: true
