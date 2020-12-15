@@ -2,6 +2,7 @@
 
 namespace flipbox\saml\idp\records;
 
+use flipbox\saml\core\helpers\UrlHelper;
 use flipbox\saml\core\models\SettingsInterface;
 use flipbox\saml\core\records\AbstractProvider;
 use flipbox\saml\core\records\ProviderInterface;
@@ -27,12 +28,9 @@ class ProviderRecord extends AbstractProvider implements ProviderInterface
         if ($this->providerType !== SettingsInterface::SP) {
             return null;
         }
-        return implode(
-            DIRECTORY_SEPARATOR,
-            [
-                Saml::getInstance()->getSettings()->getDefaultLoginRequestEndpoint(),
-                $this->uid,
-            ]
+        return UrlHelper::buildEndpointPath(
+            Saml::getInstance()->getSettings(),
+            UrlHelper::LOGIN_ENDPOINT
         );
     }
 
@@ -44,12 +42,9 @@ class ProviderRecord extends AbstractProvider implements ProviderInterface
         if ($this->providerType !== SettingsInterface::SP) {
             return null;
         }
-        return implode(
-            DIRECTORY_SEPARATOR,
-            [
-                Saml::getInstance()->getSettings()->getDefaultLogoutRequestEndpoint(),
-                $this->uid,
-            ]
+        return UrlHelper::buildEndpointPath(
+            Saml::getInstance()->getSettings(),
+            UrlHelper::LOGOUT_ENDPOINT
         );
     }
 }
