@@ -1,5 +1,9 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 1.2.3 - 2020-10-29
+### Fixed
+- Issue with IdP initiated logins
+
 ## 1.2.2 - 2020-10-29
 ### Fixed
 - Issue where SP and IdP plugin couldn't be installed on the same craft db due to table conflicts.
