@@ -1,7 +1,7 @@
 # SAML IDP for Craft CMS
 [![Latest Version](https://img.shields.io/github/release/flipboxfactory/saml-idp.svg?style=flat-square)](https://github.com/flipboxfactory/saml-idp/releases)
 [![Software License](https://img.shields.io/badge/license-Proprietary-brightgreen.svg?style=flat-square)](/LICENSE.md)
-[![Actions Status](https://github.com/flipboxfactory/saml-idp/workflows/Testing%20Craft%20CMS%20with%20MySQL/badge.svg)](https://github.com/flipboxfactory/saml-idp/actions)
+[![Actions Status](https://github.com/flipboxfactory/saml-idp/workflows/Tests/badge.svg)](https://github.com/flipboxfactory/saml-idp/actions)
 [![Total Downloads](https://img.shields.io/packagist/dt/flipboxfactory/saml-idp.svg?style=flat-square)](https://packagist.org/packages/flipboxfactory/saml-idp)
 
 ## Installation

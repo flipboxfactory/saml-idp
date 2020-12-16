@@ -1,5 +1,5 @@
 # GitHub Action for Craft CMS
-name: Testing Craft CMS with MySQL
+name: Tests
 on: [push, pull_request]
 jobs:
   craft:
