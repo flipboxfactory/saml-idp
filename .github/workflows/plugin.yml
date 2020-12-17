@@ -59,3 +59,7 @@ jobs:
           php ./vendor/bin/codecept run -vv --coverage --coverage-html
         env:
           DB_DSN: mysql:host=127.0.0.1;port=${{ job.services.mysql.ports['3306'] }};dbname=test
+      - name: codecov.io
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: bash <(curl -s https://codecov.io/bash)
