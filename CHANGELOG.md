@@ -1,6 +1,10 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
-## 1.2.3 - 2020-10-29
+## 1.2.4 - 2020-12-16
+### Added
+- Updates to CICD. Using github actions! 🚀
+
+## 1.2.3 - 2020-12-14
 ### Fixed
 - Issue with IdP initiated logins
 
