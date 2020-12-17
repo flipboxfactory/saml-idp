@@ -1,6 +1,12 @@
 # GitHub Action for Craft CMS
-name: Tests
-on: [push, pull_request]
+name: Build and Test
+on:
+  push:
+  pull_request:
+  schedule:
+    # every tuesday
+    - cron:  '0 0 * * 3'
+
 jobs:
   craft:
     name: Craft CMS (PHP ${{ matrix.php-versions }})
@@ -60,6 +66,8 @@ jobs:
         env:
           DB_DSN: mysql:host=127.0.0.1;port=${{ job.services.mysql.ports['3306'] }};dbname=test
       - name: codecov.io
+        # only do this once
+        if: ${{ matrix.php-versions == '7.4' }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: bash <(curl -s https://codecov.io/bash)
