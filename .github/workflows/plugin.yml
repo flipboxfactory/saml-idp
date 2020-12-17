@@ -56,7 +56,7 @@ jobs:
       - name: Run Tests
         run: |
           php ./vendor/bin/codecept build
-          php ./vendor/bin/codecept run -vv --coverage --coverage-html
+          php ./vendor/bin/codecept run -vv --coverage --coverage-xml
         env:
           DB_DSN: mysql:host=127.0.0.1;port=${{ job.services.mysql.ports['3306'] }};dbname=test
       - name: codecov.io
