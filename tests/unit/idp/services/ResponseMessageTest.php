@@ -96,6 +96,14 @@ class ResponseMessageTest extends Unit
 
         $this->assertInstanceOf(Response::class, $response);
 
+        $response = $this->module->getResponse()->create(
+            $user,
+            $idp = $this->metadataFactory->createMyProviderWithKey($this->module),
+            $sp,
+            $settings = $this->module->getSettings()
+        );
+        $this->assertInstanceOf(Response::class, $response);
+
         $sp->setGroupOptions(new GroupOptions([
             'options' => [
                 'allow' => [

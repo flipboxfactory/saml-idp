@@ -4,6 +4,14 @@
 ### Added
 - Adding better multisite support
 
+## 1.2.4 - 2020-12-16
+### Added
+- Updates to CICD. Using github actions! 🚀
+
+## 1.2.3 - 2020-12-14
+### Fixed
+- Issue with IdP initiated logins
+
 ## 1.2.2 - 2020-10-29
 ### Fixed
 - Issue where SP and IdP plugin couldn't be installed on the same craft db due to table conflicts.
