@@ -3,6 +3,7 @@
 namespace flipbox\saml\idp\records;
 
 use flipbox\saml\core\helpers\UrlHelper;
+use flipbox\saml\core\models\AbstractSettings;
 use flipbox\saml\core\models\SettingsInterface;
 use flipbox\saml\core\records\AbstractProvider;
 use flipbox\saml\core\records\ProviderInterface;
@@ -19,6 +20,14 @@ class ProviderRecord extends AbstractProvider implements ProviderInterface
      * The table alias
      */
     const TABLE_ALIAS = 'saml_idp_providers';
+
+    /**
+     * @return AbstractSettings
+     */
+    protected function getDefaultSettings(): AbstractSettings
+    {
+        return Saml::getInstance()->getSettings();
+    }
 
     /**
      * @inheritdoc

@@ -15,9 +15,10 @@ class LoginController extends GeneralController
     public $allowAnonymous = [
         'index',
     ];
+
     public function actionIndex()
     {
-        $variables = $this->getBaseVariables();
+        $variables = Saml::getInstance()->getEditProvider()->getBaseVariables();
 
         $variables['providers'] = Saml::getInstance()->getProvider()->findByIdp();
         return $this->renderTemplate(

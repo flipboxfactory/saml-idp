@@ -132,7 +132,7 @@ class Metadata extends \UnitTester
 
         $metadata = $service->create(
             $settings,
-            $keypair
+            $this->createMyProvider($this->module, $keypair)
         );
 
         $I->assertEquals(
