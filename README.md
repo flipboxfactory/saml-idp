@@ -6,7 +6,7 @@
 [![codecov](https://codecov.io/gh/flipboxfactory/saml-idp/branch/master/graph/badge.svg?token=IF9CNPKNWM)](https://codecov.io/gh/flipboxfactory/saml-idp)
 [![Total Downloads](https://img.shields.io/packagist/dt/flipboxfactory/saml-idp.svg?style=flat-square)](https://packagist.org/packages/flipboxfactory/saml-idp)
 
-## Upgrading to 3.6 from lower version
+## Upgrading to Craft CMS 3.6
 - DO NOT PROCEED UNTIL THIS IS FIXED: https://github.com/flipboxfactory/saml-idp/issues/22
 
 ## Installation
