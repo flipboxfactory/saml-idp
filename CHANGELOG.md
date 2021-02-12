@@ -1,5 +1,9 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 1.3.1 - 2021-02-11
+### Fixed
+- Fixed https://github.com/flipboxfactory/saml-idp/issues/22
+
 ## 1.3.0 - 2021-02-11
 ### Added
 - Adding better multisite support
