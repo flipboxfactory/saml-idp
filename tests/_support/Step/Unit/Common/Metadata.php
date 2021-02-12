@@ -119,21 +119,27 @@ class Metadata extends \UnitTester
 
         $settings = $this->module->getSettings();
 
-        if ($entityId) {
-            $settings->setEntityId($entityId);
-        }
-
-        $service = $this->module->getMetadata();
-
-        $keypair = null;
-        if ($withKey) {
-            $keypair = $withKey;
-        }
-
-        $metadata = $service->create(
-            $settings,
-            $this->createMyProvider($this->module, $keypair)
+        $doc = DOMDocumentFactory::fromFile(
+            codecept_data_dir() . '/xml/idp-metadata-without-keys.xml'
         );
+
+        $metadata =  new EntityDescriptor($doc->documentElement);
+
+        if($withKey) {
+            foreach($metadata->getRoleDescriptor() as $descriptor){
+                $this->module->getMetadata()->updateDescriptorCertificates(
+                    $descriptor,
+                    $withKey
+                );
+            }
+        }
+
+        if($entityId) {
+            $metadata->setEntityID($entityId);
+            $settings->setEntityId($entityId);
+        }else{
+            $settings->setEntityId($metadata->getEntityID());
+        }
 
         $I->assertEquals(
             $settings->getEntityId(),
