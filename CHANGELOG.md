@@ -1,6 +1,6 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
-## 1.3.0 - 2020-10-30
+## 1.3.0 - 2021-02-11
 ### Added
 - Adding better multisite support
 
