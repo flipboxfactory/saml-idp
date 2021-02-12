@@ -1,5 +1,9 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 1.3.2 - 2021-02-12
+### Fixed
+- Fixed mirgration issue with duplicate metadataOptions column
+
 ## 1.3.1 - 2021-02-11
 ### Fixed
 - Fixed https://github.com/flipboxfactory/saml-idp/issues/22
