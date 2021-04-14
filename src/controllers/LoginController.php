@@ -148,11 +148,16 @@ class LoginController extends AbstractController
         Factory::send($response, $serviceProvider);
     }
 
-    public function actionRequest($uid)
+    /**
+     * @param string $spUid
+     * @param string|null $idpUid
+     * @throws InvalidMetadata
+     */
+    public function actionRequest(string $spUid, string $idpUid = null)
     {
         //build uid condition
         $uidCondition = [
-            'uid' => $uid,
+            'uid' => $spUid,
         ];
 
         /**
@@ -162,11 +167,18 @@ class LoginController extends AbstractController
             $uidCondition
         )->one()
         ) {
-            throw new InvalidMetadata('IDP Metadata Not found!');
+            throw new InvalidMetadata('SP Metadata Not found!');
         }
 
         if ($user = Craft::$app->getUser()->getIdentity()) {
-            $identityProvider = Saml::getInstance()->getProvider()->findOwn();
+            $identityProvider = Saml::getInstance()->getProvider()->findByIdp([
+                        'uid' => $idpUid,
+                    ])->one() ?? Saml::getInstance()->getProvider()->findOwn();
+
+            if(!$identityProvider) {
+                throw new InvalidMetadata('IdP Metadata Not found!');
+            }
+
 
             //create response and send back to the sp
             $response = Saml::getInstance()->getResponse()->create(

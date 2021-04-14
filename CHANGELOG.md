@@ -1,5 +1,9 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 1.3.3 - 2021-04-13
+### Added
+- Ability to be explicit with idp provider when passing a request url.
+
 ## 1.3.2 - 2021-02-12
 ### Fixed
 - Fixed mirgration issue with duplicate metadataOptions column
