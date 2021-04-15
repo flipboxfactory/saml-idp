@@ -149,15 +149,15 @@ class LoginController extends AbstractController
     }
 
     /**
-     * @param string $spUid
-     * @param string|null $idpUid
+     * @param string $externalUid SP UID
+     * @param string|null $internalUid IdP UID
      * @throws InvalidMetadata
      */
-    public function actionRequest(string $spUid, string $idpUid = null)
+    public function actionRequest(string $externalUid, string $internalUid = null)
     {
         //build uid condition
         $uidCondition = [
-            'uid' => $spUid,
+            'uid' => $externalUid,
         ];
 
         /**
@@ -172,7 +172,7 @@ class LoginController extends AbstractController
 
         if ($user = Craft::$app->getUser()->getIdentity()) {
             $identityProvider = Saml::getInstance()->getProvider()->findByIdp([
-                        'uid' => $idpUid,
+                        'uid' => $internalUid,
                     ])->one() ?? Saml::getInstance()->getProvider()->findOwn();
 
             if(!$identityProvider) {
