@@ -1,5 +1,9 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 1.3.5 - 2021-05-04
+### Fixing
+- Issue with mapping preview.
+
 ## 1.3.3 - 2021-04-15
 ### Fixing
 - Issue with IdP initiated SSO. Result from 1.3.3 controller changes.

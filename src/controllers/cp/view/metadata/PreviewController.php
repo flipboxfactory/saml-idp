@@ -7,6 +7,7 @@ use flipbox\saml\core\controllers\cp\view\metadata\AbstractPreviewController;
 use flipbox\saml\idp\Saml;
 use flipbox\saml\idp\traits\SamlPluginEnsured;
 use SAML2\Assertion;
+use SAML2\XML\saml\Issuer;
 
 class PreviewController extends AbstractPreviewController
 {
@@ -36,6 +37,11 @@ class PreviewController extends AbstractPreviewController
             $assertion = new Assertion(),
             $provider,
             $settings
+        );
+        $issuer = (new Issuer());
+        $issuer->setValue('example');
+        $assertion->setIssuer(
+            $issuer
         );
         $doc = $assertion->toXML()->ownerDocument;
         $doc->preserveWhiteSpace = false;
