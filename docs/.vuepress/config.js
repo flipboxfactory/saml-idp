@@ -29,6 +29,7 @@ module.exports = {
                     children: [
                         ['/', 'Introduction'],
                         ['/installation', 'Installation / Upgrading'],
+                        ['/configure', 'Configure'],
                         ['/initiating-sso', 'Initiating SSO'],
                         ['/access-control', 'Access Control'],
                         ['/support', 'Support'],
