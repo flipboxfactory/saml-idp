@@ -1,5 +1,10 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 1.3.6 2021-05-14
+## Fixed
+- Issue with clipboard (using navigator.clipboard with a fallback of the previous method) 
+- Disallow viewing to settings when allowAdminChanges is false 
+
 ## 1.3.5 - 2021-05-04
 ### Fixing
 - Issue with mapping preview.
