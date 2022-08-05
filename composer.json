@@ -33,6 +33,12 @@
       "flipbox\\saml\\idp\\": "src/"
     }
   },
+  "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true,
+            "craftcms/plugin-installer": true
+        }
+  },
   "autoload-dev": {
     "psr-4": {
       "flipbox\\saml\\idp\\tests\\": "tests/src/"
