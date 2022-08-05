@@ -8,13 +8,10 @@
 
 namespace flipbox\saml\idp;
 
+use craft\base\Model;
 use craft\events\RegisterComponentTypesEvent;
-use craft\events\UserGroupEvent;
-use craft\models\UserGroup;
 use craft\services\Fields;
-use craft\services\UserGroups;
 use craft\web\UrlManager;
-use craft\web\User;
 use flipbox\saml\core\AbstractPlugin;
 use flipbox\saml\core\containers\Saml2Container;
 use flipbox\saml\core\models\SettingsInterface;
@@ -35,7 +32,7 @@ use yii\base\Event;
 class Saml extends AbstractPlugin
 {
 
-    public function init()
+    public function init(): void
     {
         parent::init();
 
@@ -91,7 +88,7 @@ class Saml extends AbstractPlugin
     /**
      * @return Settings
      */
-    public function getSettings(): SettingsInterface
+    public function getSettings(): ?Model
     {
         return parent::getSettings();
     }
@@ -99,7 +96,7 @@ class Saml extends AbstractPlugin
     /**
      * @inheritdoc
      */
-    public function createSettingsModel()
+    public function createSettingsModel(): ?Model
     {
         return new Settings([
             'myType' => SettingsInterface::IDP,

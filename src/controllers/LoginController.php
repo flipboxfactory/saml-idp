@@ -26,7 +26,7 @@ class LoginController extends AbstractController
 {
     use SamlPluginEnsured;
 
-    protected $allowAnonymous = [
+    protected array|int|bool $allowAnonymous = [
         'actionIndex',
         'actionRequest',
     ];
@@ -37,7 +37,7 @@ class LoginController extends AbstractController
      * @param \yii\base\Action $action
      * @return bool
      */
-    public function beforeAction($action)
+    public function beforeAction($action):bool
     {
         return true;
     }
