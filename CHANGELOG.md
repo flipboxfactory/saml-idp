@@ -1,5 +1,13 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 4.0.1 2022-08-11
+### Fixed
+- issues with 4.0 typing matching craft parent classes (saml-core)
+
+## 4.0.0 2022-08-01
+### Fixed
+- Craft support 4.0
+
 ## 1.3.7 2021-07-15
 ### Fixed
 - Issue with settings saving from the plugin in the craft control panel (#32)
