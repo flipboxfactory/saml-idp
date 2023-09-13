@@ -1,5 +1,9 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 1.3.10 2022-09-13
+### Fixed
+- fix: adding support for SubjectConfirmationData Recipient when its idp initiated (#54)
+
 ## 1.3.8 2022-08-05
 ### Fixed
 - updated to saml-core to latest minor 
