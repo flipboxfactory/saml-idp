@@ -1,5 +1,9 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 4.0.1 2022-09-12
+### Fixed
+- fixing #54: missing recepient on subject confirmation data when idp initiated
+
 ## 4.0.1 2022-08-11
 ### Fixed
 - issues with 4.0 typing matching craft parent classes (saml-core)
