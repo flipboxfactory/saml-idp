@@ -159,10 +159,11 @@ class ResponseAssertion extends Component
 
         if ($authnRequest) {
             $subjectConfirmationData->setInResponseTo($authnRequest->getId());
-            $subjectConfirmationData->setRecipient(
-                $authnRequest->getAssertionConsumerServiceURL()
-            );
         }
+
+        $subjectConfirmationData->setRecipient(
+            $authnRequest ? $authnRequest->getAssertionConsumerServiceURL() : $serviceProvider->firstSpAcsService()->getLocation()
+        );
 
         $subjectConfirmation->setNameID(
             $nameId = new NameID()
