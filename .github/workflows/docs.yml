@@ -5,6 +5,10 @@ on:
     branches:
       - master
 
+
+env:
+  NODE_OPTIONS: '--openssl-legacy-provider'
+
 jobs:
   docs:
     runs-on: ubuntu-latest
