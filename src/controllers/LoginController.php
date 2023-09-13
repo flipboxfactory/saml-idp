@@ -175,7 +175,7 @@ class LoginController extends AbstractController
                         'uid' => $internalUid,
                     ])->one() ?? Saml::getInstance()->getProvider()->findOwn();
 
-            if(!$identityProvider) {
+            if (!$identityProvider) {
                 throw new InvalidMetadata('IdP Metadata Not found!');
             }
 
