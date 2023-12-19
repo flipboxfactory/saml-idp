@@ -1,5 +1,10 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+
+## 4.0.3 2022-12-19
+### Fixed
+- issues with array shifting the keys properly: https://github.com/flipboxfactory/saml-idp/issues/58
+
 ## 4.0.1 2022-09-12
 ### Fixed
 - fixing #54: missing recepient on subject confirmation data when idp initiated
