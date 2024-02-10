@@ -1,5 +1,9 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 4.1.0 2024-02-10
+### Fixed
+- Fixing issue with multi-site linking for the external id field 
+
 ## 4.0.4 2022-12-19
 ### Fixed
 - reverting previous change
