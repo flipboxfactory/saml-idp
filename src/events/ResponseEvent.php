@@ -1,4 +1,5 @@
 <?php
+
 namespace flipbox\saml\idp\events;
 
 use craft\elements\User;

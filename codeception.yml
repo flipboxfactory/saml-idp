@@ -5,7 +5,8 @@ paths:
   support: tests/_support
 actor_suffix: Tester
 params:
-  - env # load params from environment vars
+  - tests/.env
+  - env 
 bootstrap: _bootstrap.php
 settings:
   colors: true
@@ -26,7 +27,8 @@ modules:
   config:
     \craft\test\Craft:
       configFile: 'tests/_craft/config/test.php'
-      edition: 1
+      edition: 2
+      entryUrl: http://saml-idp.test/index.php
       dbSetup:
         clean: true
         setupCraft: true
@@ -39,8 +41,3 @@ modules:
         user: '%DB_USER%'
         password: '%DB_PASSWORD%'
         populate: true
-        # cleanup: true
-        # reconnect: true
-        dump:
-          - tests/_data/create-dbs.sql
-#          - tests/_data/test.sql

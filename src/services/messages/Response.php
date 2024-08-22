@@ -7,10 +7,8 @@ use craft\elements\User;
 use flipbox\saml\core\exceptions\AccessDenied;
 use flipbox\saml\core\helpers\MessageHelper;
 use flipbox\saml\core\records\AbstractProvider;
-use flipbox\saml\core\services\bindings\Factory;
 use flipbox\saml\idp\events\ResponseEvent;
 use flipbox\saml\idp\models\Settings;
-use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\records\ProviderRecord as Provider;
 use flipbox\saml\idp\Saml;
 use SAML2\AuthnRequest as SamlAuthnRequest;
@@ -21,9 +19,8 @@ use yii\base\Event;
 
 class Response extends Component
 {
-
-    const CONSENT_IMPLICIT = Constants::CONSENT_IMPLICIT;
-    const EVENT_AFTER_MESSAGE_CREATED = 'eventAfterMessageCreated';
+    public const CONSENT_IMPLICIT = Constants::CONSENT_IMPLICIT;
+    public const EVENT_AFTER_MESSAGE_CREATED = 'eventAfterMessageCreated';
 
     /**
      * @param User $user
@@ -39,10 +36,10 @@ class Response extends Component
         Provider $identityProvider,
         Provider $serviceProvider,
         Settings $settings,
-        SamlAuthnRequest $authnRequest = null
+        SamlAuthnRequest $authnRequest = null,
     ) {
         // Check Conditional login on the user
-        if (! $this->isAllowed($user, $serviceProvider)) {
+        if (!$this->isAllowed($user, $serviceProvider)) {
             throw new AccessDenied(
                 sprintf(
                     'Entity (%s) Access denied for user %s',
@@ -96,9 +93,8 @@ class Response extends Component
     protected function createGeneral(
         Provider $identityProvider,
         Provider $serviceProvider,
-        \SAML2\AuthnRequest $authnRequest = null
+        \SAML2\AuthnRequest $authnRequest = null,
     ) {
-
         $acsService = $serviceProvider->firstSpAcsService(
             Constants::BINDING_HTTP_POST
         ) ?? $serviceProvider->firstSpAcsService();

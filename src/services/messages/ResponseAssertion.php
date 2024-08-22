@@ -27,12 +27,12 @@ class ResponseAssertion extends Component
         ProviderRecord $identityProvider,
         ProviderRecord $serviceProvider,
         Settings $settings,
-        SamlAuthnRequest $authnRequest = null
+        SamlAuthnRequest $authnRequest = null,
     ) {
         $assertion = new Assertion();
 
         $issuer = $response->getIssuer();
-        if (! is_null($issuer)) {
+        if (!is_null($issuer)) {
             $assertion->setIssuer(
                 $issuer
             );
@@ -125,7 +125,7 @@ class ResponseAssertion extends Component
         AbstractProvider $serviceProvider,
         User $user,
         Settings $settings,
-        SamlAuthnRequest $authnRequest = null
+        SamlAuthnRequest $authnRequest = null,
     ) {
         /**
          * Subject Confirmation
@@ -186,7 +186,7 @@ class ResponseAssertion extends Component
      */
     protected function createConditions(
         Assertion $assertion,
-        Settings $settings
+        Settings $settings,
     ) {
         /**
          * Conditions
@@ -260,7 +260,7 @@ class ResponseAssertion extends Component
         User $user,
         Assertion $assertion,
         ProviderRecord $serviceProvider,
-        Settings $settings
+        Settings $settings,
     ) {
 
         // set on the assertion and the subject confirmations
@@ -311,7 +311,7 @@ class ResponseAssertion extends Component
         $attribute = [];
         foreach ($user->getGroups() as $group) {
             $options = $serviceProvider->getGroupOptions();
-            if (! $options->shouldSync($group->id)) {
+            if (!$options->shouldSync($group->id)) {
                 continue;
             }
 
@@ -333,7 +333,7 @@ class ResponseAssertion extends Component
      */
     protected function assignProperty(
         User $user,
-        AttributeMap $map
+        AttributeMap $map,
     ) {
         $value = $map->renderValue($user);
 

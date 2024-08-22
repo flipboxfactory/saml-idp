@@ -19,7 +19,7 @@ class ProviderRecord extends AbstractProvider implements ProviderInterface
     /**
      * The table alias
      */
-    const TABLE_ALIAS = 'saml_idp_providers';
+    public const TABLE_ALIAS = 'saml_idp_providers';
 
     /**
      * @return AbstractSettings

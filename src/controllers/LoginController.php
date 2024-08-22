@@ -9,17 +9,16 @@
 namespace flipbox\saml\idp\controllers;
 
 use Craft;
-use craft\helpers\UrlHelper;
 use flipbox\saml\core\controllers\messages\AbstractController;
 use flipbox\saml\core\exceptions\InvalidMessage;
+use flipbox\saml\core\exceptions\InvalidMetadata;
 use flipbox\saml\core\helpers\MessageHelper;
-use flipbox\saml\core\helpers\SerializeHelper;
+use flipbox\saml\core\helpers\UrlHelper as SamlUrlHelper;
 use flipbox\saml\core\services\bindings\Factory;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
 use flipbox\saml\idp\traits\SamlPluginEnsured;
 use SAML2\AuthnRequest;
-use flipbox\saml\core\exceptions\InvalidMetadata;
 use yii\web\HttpException;
 
 class LoginController extends AbstractController
@@ -37,7 +36,7 @@ class LoginController extends AbstractController
      * @param \yii\base\Action $action
      * @return bool
      */
-    public function beforeAction($action):bool
+    public function beforeAction($action): bool
     {
         return true;
     }
@@ -97,12 +96,16 @@ class LoginController extends AbstractController
         }
 
         //save to session and redirect to login
-        Saml::getInstance()->getSession()->setAuthnRequest($authnRequest);
+        // Saml::getInstance()->getSession()->setAuthnRequest($authnRequest);
 
         \Craft::$app->user->setReturnUrl(
-            UrlHelper::actionUrl(
-                Saml::getInstance()->getHandle() . '/login/after-login'
-            )
+            
+            "/" . implode("/",
+                [
+                Saml::getInstance()->getSettings()->endpointPrefix,
+                SamlUrlHelper::LOGIN_REQUEST_ENDPOINT,
+                $serviceProvider->uid,
+            ])
         );
 
         $this->redirect(
@@ -113,15 +116,14 @@ class LoginController extends AbstractController
 
     public function actionAfterLogin()
     {
-
-        if (! $authnRequest = Saml::getInstance()->getSession()->getAuthnRequest()) {
+        if (!$authnRequest = Saml::getInstance()->getSession()->getAuthnRequest()) {
             return;
         }
 
         // Clear the session
         Saml::getInstance()->getSession()->remove();
 
-        if (! $user = \Craft::$app->getUser()->getIdentity()) {
+        if (!$user = \Craft::$app->getUser()->getIdentity()) {
             throw new HttpException('Unknown Identity.');
         }
 
@@ -163,7 +165,7 @@ class LoginController extends AbstractController
         /**
          * @var ProviderRecord $sp
          */
-        if (! $serviceProvider = Saml::getInstance()->getProvider()->findBySp(
+        if (!$serviceProvider = Saml::getInstance()->getProvider()->findBySp(
             $uidCondition
         )->one()
         ) {

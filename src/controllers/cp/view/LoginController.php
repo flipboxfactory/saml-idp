@@ -10,7 +10,7 @@ use flipbox\saml\idp\Saml;
 
 class LoginController extends GeneralController
 {
-    const TEMPLATE_INDEX = DIRECTORY_SEPARATOR . '_cp';
+    public const TEMPLATE_INDEX = DIRECTORY_SEPARATOR . '_cp';
 
     public $allowAnonymous = [
         'index',

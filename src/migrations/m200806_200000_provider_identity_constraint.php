@@ -10,7 +10,6 @@ use flipbox\saml\idp\Saml;
  */
 class m200806_200000_provider_identity_constraint extends abstractMigration
 {
-
     protected static function getIdentityTableName()
     {
         return ProviderIdentityRecord::tableName();
