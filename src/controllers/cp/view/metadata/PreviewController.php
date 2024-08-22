@@ -28,7 +28,7 @@ class PreviewController extends AbstractPreviewController
             'id' => $providerId,
         ])->one();
 
-        if (! $user && ! $provider) {
+        if (!$user && !$provider) {
             return $this->asErrorJson('Provider or user is invalid');
         }
 

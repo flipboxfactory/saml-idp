@@ -6,8 +6,7 @@ use flipbox\saml\core\records\AbstractProviderIdentity;
 
 class ProviderIdentityRecord extends AbstractProviderIdentity
 {
-
-    const TABLE_ALIAS = 'saml_idp_provider_identity';
+    public const TABLE_ALIAS = 'saml_idp_provider_identity';
 
     /**
      * @inheritdoc

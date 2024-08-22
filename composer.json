@@ -1,7 +1,7 @@
 {
   "name": "flipboxfactory/saml-idp",
   "description": "SAML Identity Provider",
-  "version": "4.1.0",
+  "version": "5.0.0",
   "type": "craft-plugin",
   "license": "proprietary",
   "keywords": [
@@ -15,29 +15,37 @@
     "yii2"
   ],
   "require": {
-    "craftcms/cms": "^4.0.0",
-    "flipboxfactory/saml-core": "~4.1.0"
+    "craftcms/cms": "^5.0.0",
+    "flipboxfactory/saml-core": "~5.0.0"
   },
   "require-dev": {
-    "squizlabs/php_codesniffer": "^3.4",
-    "codeception/codeception": "^4.0.0",
-    "codeception/module-asserts": "^1.0.0",
-    "codeception/module-datafactory": "^1.0.0",
-    "codeception/module-phpbrowser": "^1.0.0",
-    "codeception/module-rest": "^1.0.0",
-    "codeception/module-yii2": "^1.0.0",
-    "codeception/module-db": "^1.1"
+    "codeception/codeception": "^5.0",
+    "codeception/module-yii2": "^1.1",
+    "craftcms/ecs": "dev-main",
+    "craftcms/phpstan": "dev-main",
+    "vlucas/phpdotenv": "^5.5",
+    "friendsofphp/php-cs-fixer": "^v3.20.0",
+    "phpunit/php-code-coverage": "^11.0.3",
+    "codeception/module-asserts": "^3.0",
+    "codeception/module-db": "^3.1"
   },
   "autoload": {
     "psr-4": {
       "flipbox\\saml\\idp\\": "src/"
     }
   },
+  "scripts": {
+    "test": "codecept run -vvv",
+    "test-cvg": "codecept run -vvv --coverage --coverage-html",
+    "check-cs": "ecs check --ansi",
+    "fix-cs": "ecs check --ansi --fix",
+    "phpstan": "phpstan --memory-limit=1G"
+  },
   "config": {
-        "allow-plugins": {
-            "yiisoft/yii2-composer": true,
-            "craftcms/plugin-installer": true
-        }
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true,
+      "craftcms/plugin-installer": true
+    }
   },
   "autoload-dev": {
     "psr-4": {
@@ -48,13 +56,13 @@
     "email": "support@flipboxfactory.com",
     "issues": "https://github.com/flipboxfactory/saml-idp/issues?state=open",
     "source": "https://github.com/flipboxfactory/saml-idp",
-    "docs":   "https://github.com/flipboxfactory/saml-idp",
-    "rss":    "https://github.com/flipboxfactory/saml-idp/commits/master.atom"
+    "docs": "https://github.com/flipboxfactory/saml-idp",
+    "rss": "https://github.com/flipboxfactory/saml-idp/commits/master.atom"
   },
   "extra": {
     "name": "SAML Identity Provider",
-    "version":"4.1.0",
-    "schemaVersion":"0.1.0",
+    "version": "5.0.0",
+    "schemaVersion": "0.1.0",
     "handle": "saml-idp",
     "class": "flipbox\\saml\\idp\\Saml",
     "developer": "Flipbox Digital",

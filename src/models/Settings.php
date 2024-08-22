@@ -8,13 +8,12 @@
 
 namespace flipbox\saml\idp\models;
 
+use flipbox\saml\core\helpers\ClaimTypes;
 use flipbox\saml\core\models\AbstractSettings;
 use flipbox\saml\core\models\SettingsInterface;
-use flipbox\saml\core\helpers\ClaimTypes;
 
 class Settings extends AbstractSettings implements SettingsInterface
 {
-
     /**
      * @var bool
      */

@@ -12,7 +12,6 @@ use flipbox\saml\idp\Saml;
 
 trait SamlPluginEnsured
 {
-
     /**
      * @see EnsureSAMLPlugin
      * @return AbstractPlugin

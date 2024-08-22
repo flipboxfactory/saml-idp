@@ -15,7 +15,6 @@ use craft\web\UrlManager;
 use flipbox\saml\core\AbstractPlugin;
 use flipbox\saml\core\containers\Saml2Container;
 use flipbox\saml\core\models\SettingsInterface;
-use flipbox\saml\core\records\AbstractProvider;
 use flipbox\saml\idp\fields\ExternalIdentity;
 use flipbox\saml\idp\models\Settings;
 use flipbox\saml\idp\records\ProviderIdentityRecord;
@@ -31,7 +30,6 @@ use yii\base\Event;
 
 class Saml extends AbstractPlugin
 {
-
     public function init(): void
     {
         parent::init();
@@ -79,7 +77,7 @@ class Saml extends AbstractPlugin
         Event::on(
             Fields::class,
             Fields::EVENT_REGISTER_FIELD_TYPES,
-            function (RegisterComponentTypesEvent $event) {
+            function(RegisterComponentTypesEvent $event) {
                 $event->types[] = ExternalIdentity::class;
             }
         );

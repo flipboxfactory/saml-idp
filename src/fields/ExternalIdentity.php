@@ -7,6 +7,5 @@ use flipbox\saml\idp\traits\SamlPluginEnsured;
 
 class ExternalIdentity extends AbstractExternalIdentity
 {
-
     use SamlPluginEnsured;
 }

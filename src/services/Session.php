@@ -8,13 +8,14 @@
 
 namespace flipbox\saml\idp\services;
 
+use craft\helpers\Session as SessionHelper;
+
 use SAML2\AuthnRequest;
 
 class Session extends \flipbox\saml\core\services\Session
 {
-
-    const AUTHNREQUEST_KEY = 'authnrequest.message';
-    const RELAY_STATE_KEY  = 'relaystate';
+    public const AUTHNREQUEST_KEY = 'authnrequest.message';
+    public const RELAY_STATE_KEY = 'relaystate';
 
     /**
      * @param AuthnRequest $message
@@ -22,7 +23,7 @@ class Session extends \flipbox\saml\core\services\Session
      */
     public function setAuthnRequest(AuthnRequest $message)
     {
-        \Craft::$app->getSession()->set(
+        SessionHelper::set(
             static::AUTHNREQUEST_KEY,
             $message
         );
@@ -34,7 +35,7 @@ class Session extends \flipbox\saml\core\services\Session
      */
     public function getAuthnRequest()
     {
-        return \Craft::$app->getSession()->get(
+        return SessionHelper::get(
             static::AUTHNREQUEST_KEY
         );
     }
@@ -45,7 +46,7 @@ class Session extends \flipbox\saml\core\services\Session
      */
     public function setRelayState(string $relayState)
     {
-        \Craft::$app->getSession()->set(
+        SessionHelper::set(
             static::RELAY_STATE_KEY,
             $relayState
         );
@@ -57,7 +58,7 @@ class Session extends \flipbox\saml\core\services\Session
      */
     public function getRelayState()
     {
-        return \Craft::$app->getSession()->get(
+        return SessionHelper::get(
             static::RELAY_STATE_KEY
         );
     }
@@ -68,10 +69,10 @@ class Session extends \flipbox\saml\core\services\Session
     public function remove()
     {
         return [
-            \Craft::$app->getSession()->remove(
+            SessionHelper::remove(
                 static::AUTHNREQUEST_KEY
             ),
-            \Craft::$app->getSession()->remove(
+            SessionHelper::remove(
                 static::RELAY_STATE_KEY
             ),
         ];

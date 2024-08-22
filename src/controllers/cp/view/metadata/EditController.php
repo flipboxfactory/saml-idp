@@ -8,7 +8,6 @@ use flipbox\saml\idp\traits\SamlPluginEnsured;
 
 class EditController extends AbstractEditController
 {
-
     use SamlPluginEnsured;
 
     /**
