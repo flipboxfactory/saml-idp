@@ -30,7 +30,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-versions: ['8.0', ]
+        php-versions:
+          - '8.2'
+          - '8.3'
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -67,7 +69,7 @@ jobs:
           DB_DSN: mysql:host=127.0.0.1;port=${{ job.services.mysql.ports['3306'] }};dbname=test
       - name: codecov.io
         # only do this once
-        if: ${{ matrix.php-versions == '7.4' }}
+        if: ${{ matrix.php-versions == '8.3' }}
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         run: bash <(curl -s https://codecov.io/bash)

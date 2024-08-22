@@ -26,3 +26,10 @@ jobs:
             See [CHANGELOG](/CHANGELOG.md)
           draft: false
           prerelease: false
+      # - uses: ncipollo/release-action@v1
+      #   with:
+      #     body: ${{ github.event.client_payload.notes }}
+      #     makeLatest: ${{ github.event.client_payload.latest }}
+      #     name: ${{ github.event.client_payload.version }}
+      #     prerelease: ${{ github.event.client_payload.prerelease }}
+      #     tag: ${{ github.event.client_payload.tag }}
