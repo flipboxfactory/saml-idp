@@ -1,8 +1,12 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 4.1.1 2024-12-03 [CRITICAL]
+### Fixed
+- SECURITY PATCH - Update REQUIRED! More info can be found here: https://github.com/simplesamlphp/saml2/security/advisories/GHSA-pxm4-r5ph-q2m2#event-375127
+
 ## 4.1.0 2024-02-10
 ### Fixed
-- Fixing issue with multi-site linking for the external id field 
+- Fixing issue with multi-site linking for the external id field
 
 ## 4.0.4 2022-12-19
 ### Fixed
@@ -30,8 +34,8 @@
 
 ## 1.3.6 2021-05-14
 ### Fixed
-- Issue with clipboard (using navigator.clipboard with a fallback of the previous method) 
-- Disallow viewing to settings when allowAdminChanges is false 
+- Issue with clipboard (using navigator.clipboard with a fallback of the previous method)
+- Disallow viewing to settings when allowAdminChanges is false
 
 ## 1.3.5 - 2021-05-04
 ### Fixing
@@ -98,7 +102,7 @@
 - Fixed issue when login is via ajax call. This ends up being a very nice enhancement, cleaning up the login process when a user isn't already logged in!
 
 ## 1.0.13 - 2019-12-17
-### Fixed 
+### Fixed
 - Fixed issue where the after Response message creation wasn't passing the response to the event correctly.
 
 ## 1.0.7 - 2019-10-08
@@ -122,7 +126,7 @@
 
 ## 1.0.3 - 2019-09-17
 
-### Fixed 
+### Fixed
 - Adding protocolSupportEnumeration and wantsAuthnRequestsSigned to the metadata
 
 ## 1.0.0 - 2019-09-17
@@ -148,5 +152,5 @@
 - Adding allow any to user group access options
 
 ### Changed
-- Changing the group options access control to allow the user to login if they are 
+- Changing the group options access control to allow the user to login if they are
 apart of one user group on the allow list.
