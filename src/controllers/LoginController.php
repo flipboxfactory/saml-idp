@@ -96,17 +96,14 @@ class LoginController extends AbstractController
         }
 
         //save to session and redirect to login
-        // Saml::getInstance()->getSession()->setAuthnRequest($authnRequest);
+        Saml::getInstance()->getSession()->setAuthnRequest($authnRequest);
 
         \Craft::$app->user->setReturnUrl(
-            
-            "/" . implode("/",
-                [
-                Saml::getInstance()->getSettings()->endpointPrefix,
-                SamlUrlHelper::LOGIN_REQUEST_ENDPOINT,
-                $serviceProvider->uid,
-            ])
+            UrlHelper::actionUrl(
+                Saml::getInstance()->getHandle() . '/login/after-login'
+            )
         );
+
 
         $this->redirect(
             Craft::$app->config->general->getLoginPath()
