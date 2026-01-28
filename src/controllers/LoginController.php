@@ -114,19 +114,25 @@ class LoginController extends AbstractController
 
     public function actionAfterLogin()
     {
+        // load our container
+        Saml::getInstance()->loadSaml2Container();
+
         if (!$authnRequest = Saml::getInstance()->getSession()->getAuthnRequest()) {
+            Saml::warning("AuthnRequest not found in session");
             return;
         }
 
         // Clear the session
-        Saml::getInstance()->getSession()->remove();
+        try {
+            Saml::getInstance()->getSession()->remove();
+        } catch (Exception $e) {
+            Saml::error($e->getMessage());
+        }
 
         if (!$user = \Craft::$app->getUser()->getIdentity()) {
             throw new HttpException('Unknown Identity.');
         }
 
-        // load our container
-        Saml::getInstance()->loadSaml2Container();
 
         /** @var ProviderRecord $serviceProvider */
         $serviceProvider = Saml::getInstance()->getProvider()->findByEntityId(
