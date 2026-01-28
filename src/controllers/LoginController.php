@@ -14,6 +14,7 @@ use flipbox\saml\core\exceptions\InvalidMessage;
 use flipbox\saml\core\exceptions\InvalidMetadata;
 use flipbox\saml\core\helpers\MessageHelper;
 use flipbox\saml\core\helpers\UrlHelper as SamlUrlHelper;
+use craft\helpers\UrlHelper;
 use flipbox\saml\core\services\bindings\Factory;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;

@@ -1,5 +1,9 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 5.0.3 2026-01-27
+### Fixed
+- issue with import from after login loss of relay state
+
 ## 5.0.2 2026-01-27
 ### Fixed
 - issue with after login loss of relay state
