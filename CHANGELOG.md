@@ -1,5 +1,9 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 5.0.2 2026-01-27
+### Fixed
+- issue with after login loss of relay state
+
 ## 5.0.1 2024-12-03 [CRITICAL]
 ### Fixed
 - SECURITY PATCH - Update REQUIRED! More info can be found here: https://github.com/simplesamlphp/saml2/security/advisories/GHSA-pxm4-r5ph-q2m2#event-375127
