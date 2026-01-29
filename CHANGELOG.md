@@ -1,5 +1,9 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 5.0.7 2026-01-29
+### Fixed
+- remove session close
+
 ## 5.0.6 2026-01-28
 ### Fixed
 - session adjustments

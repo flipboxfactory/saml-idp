@@ -114,10 +114,6 @@ class LoginController extends AbstractController
             ),
         );
 
-        Saml::info("Setting return URL and closing session");
-        // Close session to ensure data is written before redirect
-        \Craft::$app->session->close();
-
         $this->redirect(
             Craft::$app->config->general->getLoginPath(),
         );
