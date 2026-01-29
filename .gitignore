@@ -1,3 +1,4 @@
+.php-cs-fixer.*
 /build
 /vendor
 /storage

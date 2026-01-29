@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: dsmrt
@@ -27,8 +28,9 @@ class LoginController extends AbstractController
     use SamlPluginEnsured;
 
     protected array|int|bool $allowAnonymous = [
-        'actionIndex',
-        'actionRequest',
+        'index',
+        'request',
+        'after-login',
     ];
 
     public $enableCsrfValidation = false;
@@ -39,7 +41,8 @@ class LoginController extends AbstractController
      */
     public function beforeAction($action): bool
     {
-        return true;
+        // Always call parent beforeAction - important for framework functionality
+        return parent::beforeAction($action);
     }
 
     /**
@@ -48,13 +51,18 @@ class LoginController extends AbstractController
      */
     public function actionIndex()
     {
+        // Load SAML2 container early to ensure proper serialization
+        Saml::getInstance()->loadSaml2Container();
+
+        // Debug: Check if logging is working at all
+        Saml::info("=== actionIndex START ===");
 
         /** @var AuthnRequest $authnRequest */
         $authnRequest = Factory::receive();
 
         /** @var ProviderRecord $serviceProvider */
         $serviceProvider = Saml::getInstance()->getProvider()->findByEntityId(
-            MessageHelper::getIssuer($authnRequest->getIssuer())
+            MessageHelper::getIssuer($authnRequest->getIssuer()),
         )->one();
 
         if (is_null($serviceProvider)) {
@@ -80,14 +88,14 @@ class LoginController extends AbstractController
                 $identityProvider,
                 $serviceProvider,
                 Saml::getInstance()->getSettings(),
-                $authnRequest
+                $authnRequest,
             );
 
             Saml::getInstance()->getResponse()->finalizeWithAuthnRequest($response, $authnRequest);
 
             $identity = Saml::getInstance()->getProviderIdentity()->findByUserAndProviderOrCreate(
                 $user,
-                $serviceProvider
+                $serviceProvider,
             );
 
             Saml::getInstance()->getProviderIdentity()->save($identity);
@@ -97,28 +105,39 @@ class LoginController extends AbstractController
         }
 
         //save to session and redirect to login
+        Saml::info("Saving AuthnRequest to session");
         Saml::getInstance()->getSession()->setAuthnRequest($authnRequest);
 
         \Craft::$app->user->setReturnUrl(
             UrlHelper::actionUrl(
-                Saml::getInstance()->getHandle() . '/login/after-login'
-            )
+                Saml::getInstance()->getHandle() . '/login/after-login',
+            ),
         );
 
+        Saml::info("Setting return URL and closing session");
+        // Close session to ensure data is written before redirect
+        \Craft::$app->session->close();
 
         $this->redirect(
-            Craft::$app->config->general->getLoginPath()
+            Craft::$app->config->general->getLoginPath(),
         );
         return;
     }
 
     public function actionAfterLogin()
     {
+        // Load SAML2 container BEFORE accessing session to ensure proper deserialization
+        Saml::getInstance()->loadSaml2Container();
+
+        Saml::info("=== actionAfterLogin START ===");
 
         if (!$authnRequest = Saml::getInstance()->getSession()->getAuthnRequest()) {
             Saml::warning("AuthnRequest not found in session");
+            Saml::error("CRITICAL: Session data lost - AuthnRequest is null");
             return;
         }
+
+        Saml::info("AuthnRequest successfully retrieved from session");
 
         // Clear the session
         /* try { */
@@ -131,12 +150,9 @@ class LoginController extends AbstractController
             throw new HttpException('Unknown Identity.');
         }
 
-        // load our container
-        Saml::getInstance()->loadSaml2Container();
-
         /** @var ProviderRecord $serviceProvider */
         $serviceProvider = Saml::getInstance()->getProvider()->findByEntityId(
-            MessageHelper::getIssuer($authnRequest->getIssuer())
+            MessageHelper::getIssuer($authnRequest->getIssuer()),
         )->one();
 
         $identityProvider = Saml::getInstance()->getProvider()->findOwn();
@@ -146,7 +162,7 @@ class LoginController extends AbstractController
             $identityProvider,
             $serviceProvider,
             Saml::getInstance()->getSettings(),
-            $authnRequest
+            $authnRequest,
         );
 
         Saml::getInstance()->getResponse()->finalizeWithAuthnRequest($response, $authnRequest);
@@ -170,7 +186,7 @@ class LoginController extends AbstractController
          * @var ProviderRecord $sp
          */
         if (!$serviceProvider = Saml::getInstance()->getProvider()->findBySp(
-            $uidCondition
+            $uidCondition,
         )->one()
         ) {
             throw new InvalidMetadata('SP Metadata Not found!');
@@ -178,8 +194,8 @@ class LoginController extends AbstractController
 
         if ($user = Craft::$app->getUser()->getIdentity()) {
             $identityProvider = Saml::getInstance()->getProvider()->findByIdp([
-                        'uid' => $internalUid,
-                    ])->one() ?? Saml::getInstance()->getProvider()->findOwn();
+                'uid' => $internalUid,
+            ])->one() ?? Saml::getInstance()->getProvider()->findOwn();
 
             if (!$identityProvider) {
                 throw new InvalidMetadata('IdP Metadata Not found!');
@@ -191,14 +207,14 @@ class LoginController extends AbstractController
                 $user,
                 $identityProvider,
                 $serviceProvider,
-                Saml::getInstance()->getSettings()
+                Saml::getInstance()->getSettings(),
             );
 
             $response->setRelayState($this->getRelayState());
 
             $identity = Saml::getInstance()->getProviderIdentity()->findByUserAndProviderOrCreate(
                 $user,
-                $serviceProvider
+                $serviceProvider,
             );
 
             Saml::getInstance()->getProviderIdentity()->save($identity);
@@ -209,11 +225,11 @@ class LoginController extends AbstractController
 
         //save to session and redirect to login
         \Craft::$app->user->setReturnUrl(
-            \Craft::$app->request->getAbsoluteUrl()
+            \Craft::$app->request->getAbsoluteUrl(),
         );
 
         $this->redirect(
-            Craft::$app->config->general->getLoginPath()
+            Craft::$app->config->general->getLoginPath(),
         );
         return;
     }
