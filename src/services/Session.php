@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: dsmrt
@@ -9,7 +10,6 @@
 namespace flipbox\saml\idp\services;
 
 use craft\helpers\Session as SessionHelper;
-
 use SAML2\AuthnRequest;
 
 class Session extends \flipbox\saml\core\services\Session
@@ -23,9 +23,10 @@ class Session extends \flipbox\saml\core\services\Session
      */
     public function setAuthnRequest(AuthnRequest $message)
     {
+        $msgStr = $message->toUnsignedXML();
         SessionHelper::set(
             static::AUTHNREQUEST_KEY,
-            $message
+            $msgStr->ownerDocument->saveXML($msgStr),
         );
         return $this;
     }
@@ -35,9 +36,20 @@ class Session extends \flipbox\saml\core\services\Session
      */
     public function getAuthnRequest()
     {
-        return SessionHelper::get(
-            static::AUTHNREQUEST_KEY
+        $xmlString = SessionHelper::get(
+            static::AUTHNREQUEST_KEY,
         );
+
+        if (!$xmlString) {
+            return null;
+        }
+
+        // Parse the XML string back into a DOMDocument
+        $document = new \DOMDocument();
+        $document->loadXML($xmlString);
+
+        // Convert back to AuthnRequest object
+        return AuthnRequest::fromXML($document->documentElement);
     }
 
     /**
@@ -48,7 +60,7 @@ class Session extends \flipbox\saml\core\services\Session
     {
         SessionHelper::set(
             static::RELAY_STATE_KEY,
-            $relayState
+            $relayState,
         );
         return $this;
     }
@@ -59,7 +71,7 @@ class Session extends \flipbox\saml\core\services\Session
     public function getRelayState()
     {
         return SessionHelper::get(
-            static::RELAY_STATE_KEY
+            static::RELAY_STATE_KEY,
         );
     }
 
@@ -70,10 +82,10 @@ class Session extends \flipbox\saml\core\services\Session
     {
         return [
             SessionHelper::remove(
-                static::AUTHNREQUEST_KEY
+                static::AUTHNREQUEST_KEY,
             ),
             SessionHelper::remove(
-                static::RELAY_STATE_KEY
+                static::RELAY_STATE_KEY,
             ),
         ];
     }
