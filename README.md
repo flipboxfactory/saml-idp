@@ -28,6 +28,7 @@ Please see [CONTRIBUTING](https://github.com/flipboxfactory/saml-idp/blob/master
 ## Credits
 
 - [Flipbox Digital](https://github.com/flipbox)
+- [garycrane](https://github.com/garycrane/)
 
 ## License
 
