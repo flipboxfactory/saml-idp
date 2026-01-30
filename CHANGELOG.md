@@ -1,5 +1,9 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## 5.0.9 2026-01-30
+### Fixed
+- adding more ways to ensure RelayState is saved correctly
+
 ## 5.0.8 2026-01-29
 ### Fixed
 - issue with DOMDocument saving to session in some instances

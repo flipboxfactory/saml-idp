@@ -9,6 +9,7 @@
 
 namespace flipbox\saml\idp\services;
 
+use SAML2\Message;
 use craft\helpers\Session as SessionHelper;
 use SAML2\AuthnRequest;
 
@@ -21,7 +22,7 @@ class Session extends \flipbox\saml\core\services\Session
      * @param AuthnRequest $message
      * @return $this
      */
-    public function setAuthnRequest(AuthnRequest $message)
+    public function setAuthnRequest(AuthnRequest $message): Session
     {
         $msgStr = $message->toUnsignedXML();
         SessionHelper::set(
@@ -34,7 +35,7 @@ class Session extends \flipbox\saml\core\services\Session
     /**
      * @return AuthnRequest|null
      */
-    public function getAuthnRequest()
+    public function getAuthnRequest(): ?Message
     {
         $xmlString = SessionHelper::get(
             static::AUTHNREQUEST_KEY,
@@ -56,7 +57,7 @@ class Session extends \flipbox\saml\core\services\Session
      * @param string $relayState
      * @return $this
      */
-    public function setRelayState(string $relayState)
+    public function setRelayState(string $relayState): Session
     {
         SessionHelper::set(
             static::RELAY_STATE_KEY,

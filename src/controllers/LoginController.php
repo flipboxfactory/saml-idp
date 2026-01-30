@@ -14,7 +14,6 @@ use flipbox\saml\core\controllers\messages\AbstractController;
 use flipbox\saml\core\exceptions\InvalidMessage;
 use flipbox\saml\core\exceptions\InvalidMetadata;
 use flipbox\saml\core\helpers\MessageHelper;
-use flipbox\saml\core\helpers\UrlHelper as SamlUrlHelper;
 use craft\helpers\UrlHelper;
 use flipbox\saml\core\services\bindings\Factory;
 use flipbox\saml\idp\records\ProviderRecord;
@@ -49,7 +48,7 @@ class LoginController extends AbstractController
      * @throws \flipbox\saml\core\exceptions\InvalidMessage
      * @throws \flipbox\saml\core\exceptions\InvalidMetadata
      */
-    public function actionIndex()
+    public function actionIndex(): void
     {
         // Load SAML2 container early to ensure proper serialization
         Saml::getInstance()->loadSaml2Container();
@@ -107,6 +106,7 @@ class LoginController extends AbstractController
         //save to session and redirect to login
         Saml::info("Saving AuthnRequest to session");
         Saml::getInstance()->getSession()->setAuthnRequest($authnRequest);
+        Saml::getInstance()->getSession()->setRelayState($relayState);
 
         \Craft::$app->user->setReturnUrl(
             UrlHelper::actionUrl(
@@ -120,12 +120,15 @@ class LoginController extends AbstractController
         return;
     }
 
-    public function actionAfterLogin()
+    public function actionAfterLogin(): void
     {
         // Load SAML2 container BEFORE accessing session to ensure proper deserialization
         Saml::getInstance()->loadSaml2Container();
 
         Saml::info("=== actionAfterLogin START ===");
+        if (!$user = \Craft::$app->getUser()->getIdentity()) {
+            throw new HttpException('Unknown Identity.');
+        }
 
         if (!$authnRequest = Saml::getInstance()->getSession()->getAuthnRequest()) {
             Saml::warning("AuthnRequest not found in session");
@@ -133,17 +136,19 @@ class LoginController extends AbstractController
             return;
         }
 
+        Saml::info("=== RelayState = '{$authnRequest->getRelayState()}'===");
+        if (!$authnRequest->getRelayState() && ($relayState = Saml::getInstance()->getSession()->getRelayState())) {
+            Saml::info("=== Seems like there's issues with RelayState. Setting to {$relayState}===");
+            $authnRequest->setRelayState($relayState);
+        }
+
         Saml::info("AuthnRequest successfully retrieved from session");
 
         // Clear the session
-        /* try { */
-        /*     Saml::getInstance()->getSession()->remove(); */
-        /* } catch (Exception $e) { */
-        /*     Saml::error($e->getMessage()); */
-        /* } */
-
-        if (!$user = \Craft::$app->getUser()->getIdentity()) {
-            throw new HttpException('Unknown Identity.');
+        try {
+            Saml::getInstance()->getSession()->remove();
+        } catch (\Exception $e) {
+            Saml::error($e->getMessage());
         }
 
         /** @var ProviderRecord $serviceProvider */
@@ -171,7 +176,7 @@ class LoginController extends AbstractController
      * @param string|null $internalUid IdP UID
      * @throws InvalidMetadata
      */
-    public function actionRequest(string $externalUid, string $internalUid = null)
+    public function actionRequest(string $externalUid, string $internalUid = null): void
     {
         //build uid condition
         $uidCondition = [
