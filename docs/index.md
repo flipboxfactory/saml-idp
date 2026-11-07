@@ -1,6 +1,6 @@
 # Overview
 
-SAML Identity Provider creates an easy way to do Single Sign-On (SSO) and Single Logout (SLO) in Craft CMS version 3.
+SAML Identity Provider creates an easy way to do Single Sign-On (SSO) and Single Logout (SLO) in Craft CMS 5.
 
 ### Features Include:
 * Single Sign-On (SSO) with Service Providers like Other Craft CMS websites using our Craft CMS [SAML SP Plugin](https://github.com/flipboxfactory/saml-sp)
