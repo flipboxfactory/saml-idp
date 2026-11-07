@@ -1,5 +1,13 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## Unreleased
+
+### Security
+- Requires `flipboxfactory/keychain` ^5.0.3. Earlier KeyChain versions stored the private key of key pairs created with "bring your own key" unencrypted in the `keychain.settings` column, even with "Encrypt at Rest" on, and showed decrypted private keys on the key pair edit page. KeyChain 5.0.3 removes the stored copies on update and hides private keys behind a password-confirmed **Reveal** button. If you used a pasted (BYOK) key pair, consider rotating it: database backups made before the update may contain the plaintext key.
+
+### Changed
+- Requires `flipboxfactory/saml-core` ^5.0.12, whose control panel pages use Craft's own markup and styles.
+
 ## 5.0.10 2026-11-06
 
 **[CRITICAL] Security release. Update required.** Update Craft CMS to 5.10.8 or later first, then run `composer update flipboxfactory/saml-idp -W`. The `-W` is needed because saml2 4.19.x requires `webmozart/assert` 1.x, while recent Craft projects lock 2.x.
