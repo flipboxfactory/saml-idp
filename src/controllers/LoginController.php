@@ -10,11 +10,11 @@
 namespace flipbox\saml\idp\controllers;
 
 use Craft;
+use craft\helpers\UrlHelper;
 use flipbox\saml\core\controllers\messages\AbstractController;
 use flipbox\saml\core\exceptions\InvalidMessage;
 use flipbox\saml\core\exceptions\InvalidMetadata;
 use flipbox\saml\core\helpers\MessageHelper;
-use craft\helpers\UrlHelper;
 use flipbox\saml\core\services\bindings\Factory;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;

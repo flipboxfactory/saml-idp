@@ -9,9 +9,9 @@
 
 namespace flipbox\saml\idp\services;
 
-use SAML2\Message;
 use craft\helpers\Session as SessionHelper;
 use SAML2\AuthnRequest;
+use SAML2\Message;
 
 class Session extends \flipbox\saml\core\services\Session
 {
