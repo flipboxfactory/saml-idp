@@ -5,9 +5,7 @@ namespace tests\unit\idp;
 
 use Codeception\Scenario;
 use Codeception\Test\Unit;
-use flipbox\saml\core\records\AbstractProvider;
 use flipbox\saml\core\records\ProviderInterface;
-use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
 use RobRichards\XMLSecLibs\XMLSecurityKey;
 use Step\Unit\Common\Metadata;
@@ -15,7 +13,6 @@ use Step\Unit\Common\SamlPlugin;
 
 class RemoteProviderRecordTest extends Unit
 {
-
     /**
      * @var Saml
      */
@@ -74,7 +71,7 @@ class RemoteProviderRecordTest extends Unit
         );
 
         // With Encryption Key
-        $metadata = $this->metadataFactory->createIdpEntityDescriptorWithKeyDescriptors()   ;
+        $metadata = $this->metadataFactory->createIdpEntityDescriptorWithKeyDescriptors();
 
         $provider = $this->metadataFactory->createIdpProviderWithEntityDescriptor(
             $this->module,

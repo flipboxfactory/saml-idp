@@ -95,7 +95,9 @@ class Response extends Component
         Provider $serviceProvider,
         \SAML2\AuthnRequest $authnRequest = null,
     ) {
+        // saml-core documents $binding as `null`, but it takes a binding URN
         $acsService = $serviceProvider->firstSpAcsService(
+            // @phpstan-ignore argument.type
             Constants::BINDING_HTTP_POST
         ) ?? $serviceProvider->firstSpAcsService();
         $response = new ResponseMessage();

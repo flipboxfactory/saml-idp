@@ -50,7 +50,6 @@ class AuthnRequestMessageTest extends Unit
 
     public function testAuthnRequest()
     {
-
         $serviceProvider = $this->metadataFactory->createTheirProviderWithSigningKey(
             $this->module
         );

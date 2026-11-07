@@ -21,6 +21,8 @@ class Provider extends AbstractProviderService implements ProviderServiceInterfa
      */
     public function findOwn()
     {
+        // saml-core documents findByEntityId() as yii\db\Query, but it returns an ActiveQuery of ProviderRecord
+        // @phpstan-ignore return.type
         return $this->findByEntityId(Saml::getInstance()->getSettings()->getEntityId())->one();
     }
 }

@@ -14,7 +14,6 @@ class CraftAppTest extends Unit
      */
     public function testCraftComponents()
     {
-
         $this->assertInstanceOf(
             Users::class,
             \Craft::$app->getUsers()

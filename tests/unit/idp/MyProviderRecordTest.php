@@ -11,14 +11,13 @@ use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
 use RobRichards\XMLSecLibs\XMLSecurityKey;
 use SAML2\Constants;
-use SAML2\XML\md\EntityDescriptor;
 use SAML2\XML\md\EndpointType;
+use SAML2\XML\md\EntityDescriptor;
 use Step\Unit\Common\Metadata;
 use Step\Unit\Common\SamlPlugin;
 
 class MyProviderRecordTest extends Unit
 {
-
     /**
      * @var Saml
      */
@@ -52,7 +51,7 @@ class MyProviderRecordTest extends Unit
         $recordClass = $this->module->getProviderRecordClass();
         $this->assertInstanceOf(
             AbstractProvider::class,
-            new $recordClass
+            new $recordClass()
         );
     }
 
@@ -109,7 +108,6 @@ class MyProviderRecordTest extends Unit
                 $endpoint->getBinding()
             );
         }
-
     }
 
     public function testEntityDescriptorTrait()
@@ -159,7 +157,5 @@ class MyProviderRecordTest extends Unit
             XMLSecurityKey::class,
             $xmlSecurityKey
         );
-
     }
-
 }

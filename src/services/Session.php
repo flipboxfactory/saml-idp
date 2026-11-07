@@ -9,9 +9,9 @@
 
 namespace flipbox\saml\idp\services;
 
-use SAML2\Message;
 use craft\helpers\Session as SessionHelper;
 use SAML2\AuthnRequest;
+use SAML2\Message;
 
 class Session extends \flipbox\saml\core\services\Session
 {
@@ -49,8 +49,10 @@ class Session extends \flipbox\saml\core\services\Session
         $document = new \DOMDocument();
         $document->loadXML($xmlString);
 
-        // Convert back to AuthnRequest object
-        return AuthnRequest::fromXML($document->documentElement);
+        // Message::fromXML() picks the class from the root element, so refuse anything
+        // that isn't an AuthnRequest
+        $message = AuthnRequest::fromXML($document->documentElement);
+        return $message instanceof AuthnRequest ? $message : null;
     }
 
     /**

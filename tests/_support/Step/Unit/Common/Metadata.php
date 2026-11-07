@@ -43,7 +43,6 @@ class Metadata extends \UnitTester
 
     public function spPrivateKey($type = XMLSecurityKey::RSA_SHA256)
     {
-
         $key = new XMLSecurityKey(
             $type,
             [
@@ -112,9 +111,8 @@ class Metadata extends \UnitTester
      */
     public function createMyEntityDescriptor(
         KeyChainRecord $withKey = null,
-        $entityId = null
-    )
-    {
+        $entityId = null,
+    ) {
         $I = $this;
 
         $settings = $this->module->getSettings();
@@ -123,10 +121,10 @@ class Metadata extends \UnitTester
             codecept_data_dir() . '/xml/idp-metadata-without-keys.xml'
         );
 
-        $metadata =  new EntityDescriptor($doc->documentElement);
+        $metadata = new EntityDescriptor($doc->documentElement);
 
-        if($withKey) {
-            foreach($metadata->getRoleDescriptor() as $descriptor){
+        if ($withKey) {
+            foreach ($metadata->getRoleDescriptor() as $descriptor) {
                 $this->module->getMetadata()->updateDescriptorCertificates(
                     $descriptor,
                     $withKey
@@ -134,10 +132,10 @@ class Metadata extends \UnitTester
             }
         }
 
-        if($entityId) {
+        if ($entityId) {
             $metadata->setEntityID($entityId);
             $settings->setEntityId($entityId);
-        }else{
+        } else {
             $settings->setEntityId($metadata->getEntityID());
         }
 

@@ -22,7 +22,7 @@ class LogoutController extends AbstractLogoutController
     use SamlPluginEnsured;
 
     /**
-     * @param null $uid
+     * @param string|null $uid
      * @return bool|ProviderInterface
      */
     protected function getRemoteProvider($uid = null)
