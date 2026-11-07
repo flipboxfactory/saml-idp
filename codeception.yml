@@ -10,7 +10,7 @@ params:
     - env
 settings:
     colors: true
-    memory_limit: 1024M
+    memory_limit: 2048M
 coverage:
     enabled: true
     show_uncovered: true
