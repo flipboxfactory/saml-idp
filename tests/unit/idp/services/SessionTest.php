@@ -39,6 +39,8 @@ class SessionTest extends Unit
     protected function _before()
     {
         $this->module = new Saml('saml-idp');
+        // Without this the test only passes when an earlier test happened to load the container
+        $this->module->loadSaml2Container();
 
         $scenario = new Scenario($this);
 
@@ -71,8 +73,19 @@ class SessionTest extends Unit
         $this->module->getSession()->remove();
         $this->assertNull($this->module->getSession()->getAuthnRequest());
         // Without a logged-in user the IdP must refuse to issue a Response
-        $this->expectException(\yii\web\HttpException::class);
+        $this->expectException(\yii\web\ForbiddenHttpException::class);
         (new LoginController('1234', $this->module))->actionAfterLogin();
+    }
+
+    public function testSessionRefusesAMessageThatIsNotAnAuthnRequest(): void
+    {
+        $response = (new \SAML2\Response())->toUnsignedXML();
+        \craft\helpers\Session::set(
+            Session::AUTHNREQUEST_KEY,
+            $response->ownerDocument->saveXML($response),
+        );
+
+        $this->assertNull($this->module->getSession()->getAuthnRequest());
     }
 
     public function testSessionRelayState()

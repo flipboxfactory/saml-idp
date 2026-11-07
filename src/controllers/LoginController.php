@@ -20,7 +20,7 @@ use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
 use flipbox\saml\idp\traits\SamlPluginEnsured;
 use SAML2\AuthnRequest;
-use yii\web\HttpException;
+use yii\web\ForbiddenHttpException;
 
 class LoginController extends AbstractController
 {
@@ -59,7 +59,7 @@ class LoginController extends AbstractController
         /** @var AuthnRequest $authnRequest */
         $authnRequest = Factory::receive();
 
-        /** @var ProviderRecord $serviceProvider */
+        /** @var ProviderRecord|null $serviceProvider */
         $serviceProvider = Saml::getInstance()->getProvider()->findByEntityId(
             MessageHelper::getIssuer($authnRequest->getIssuer()),
         )->one();
@@ -127,7 +127,7 @@ class LoginController extends AbstractController
 
         Saml::info("=== actionAfterLogin START ===");
         if (!$user = \Craft::$app->getUser()->getIdentity()) {
-            throw new HttpException('Unknown Identity.');
+            throw new ForbiddenHttpException('Unknown Identity.');
         }
 
         if (!$authnRequest = Saml::getInstance()->getSession()->getAuthnRequest()) {
@@ -183,13 +183,11 @@ class LoginController extends AbstractController
             'uid' => $externalUid,
         ];
 
-        /**
-         * @var ProviderRecord $sp
-         */
-        if (!$serviceProvider = Saml::getInstance()->getProvider()->findBySp(
+        /** @var ProviderRecord|null $serviceProvider */
+        $serviceProvider = Saml::getInstance()->getProvider()->findBySp(
             $uidCondition,
-        )->one()
-        ) {
+        )->one();
+        if (!$serviceProvider) {
             throw new InvalidMetadata('SP Metadata Not found!');
         }
 

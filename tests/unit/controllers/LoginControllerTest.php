@@ -21,7 +21,7 @@ use Step\Unit\Common\Metadata;
 use Step\Unit\Common\SamlPlugin;
 use yii\base\ExitException;
 use yii\base\InlineAction;
-use yii\web\HttpException;
+use yii\web\ForbiddenHttpException;
 
 class LoginControllerTest extends Unit
 {
@@ -238,8 +238,13 @@ class LoginControllerTest extends Unit
         $this->saveProviders();
         $this->module->getSession()->setAuthnRequest($this->authnRequest());
 
-        $this->expectException(HttpException::class);
-        $this->controller()->actionAfterLogin();
+        try {
+            $this->controller()->actionAfterLogin();
+            $this->fail('A Response was issued without a logged-in user');
+        } catch (ForbiddenHttpException $e) {
+            $this->assertSame(403, $e->statusCode);
+            $this->assertSame('Unknown Identity.', $e->getMessage());
+        }
     }
 
     /*

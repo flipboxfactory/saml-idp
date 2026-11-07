@@ -22,6 +22,9 @@ class AuthnRequest extends Component
         // Validate Signature
         $signingKey = $serviceProvider->signingXMLSecurityKey();
 
+        // saml-core documents signingXMLSecurityKey() as XMLSecurityKey, but it returns null
+        // when the SP has no signing certificate
+        // @phpstan-ignore booleanAnd.leftAlwaysTrue
         if ($signingKey && ($sig = Utils::validateElement($authnRequest->toSignedXML()))) {
             $authnRequest->addValidator(
                 [

@@ -88,7 +88,8 @@ class Saml extends AbstractPlugin
      */
     public function getSettings(): ?Model
     {
-        return parent::getSettings();
+        $settings = parent::getSettings();
+        return $settings instanceof Settings ? $settings : null;
     }
 
     /**
