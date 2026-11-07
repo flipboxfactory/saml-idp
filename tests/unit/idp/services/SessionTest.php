@@ -3,7 +3,6 @@
 
 namespace tests\unit\idp\services;
 
-
 use Codeception\Scenario;
 use Codeception\Test\Unit;
 use flipbox\saml\idp\controllers\LoginController;
@@ -61,15 +60,19 @@ class SessionTest extends Unit
             $this->module->getSession()->setAuthnRequest($authnRequest)
         );
 
+        // The session stores the request as XML, so compare identity and content
+        // rather than in-memory state (signing key, DOM document)
         $authnRequest2 = $this->module->getSession()->getAuthnRequest();
-        $this->assertEquals(
-            $authnRequest,
-            $authnRequest2
-        );
+        $this->assertSame($authnRequest->getId(), $authnRequest2->getId());
+        $original = $authnRequest->toUnsignedXML();
+        $restored = $authnRequest2->toUnsignedXML();
+        $this->assertSame($original->ownerDocument->saveXML($original), $restored->ownerDocument->saveXML($restored));
 
         $this->module->getSession()->remove();
         $this->assertNull($this->module->getSession()->getAuthnRequest());
-        (new LoginController('1234',$this->module))->actionAfterLogin();
+        // Without a logged-in user the IdP must refuse to issue a Response
+        $this->expectException(\yii\web\HttpException::class);
+        (new LoginController('1234', $this->module))->actionAfterLogin();
     }
 
     public function testSessionRelayState()
@@ -95,5 +98,4 @@ class SessionTest extends Unit
             $this->module->getSession()->getRequestId()
         );
     }
-
 }

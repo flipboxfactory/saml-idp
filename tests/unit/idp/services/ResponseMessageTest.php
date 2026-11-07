@@ -17,7 +17,6 @@ use Step\Unit\Common\SamlPlugin;
 
 class ResponseMessageTest extends Unit
 {
-
     /**
      * @var Saml
      */
@@ -139,6 +138,5 @@ class ResponseMessageTest extends Unit
             $sp,
             $settings
         );
-
     }
 }

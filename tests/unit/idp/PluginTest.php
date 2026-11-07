@@ -3,11 +3,12 @@
 
 namespace tests\unit\idp;
 
-
 use Codeception\Test\Unit;
 use flipbox\saml\core\AbstractPlugin;
 use flipbox\saml\core\containers\Saml2Container;
 use flipbox\saml\core\models\SettingsInterface;
+use flipbox\saml\core\services\messages\LogoutRequest;
+use flipbox\saml\core\services\messages\LogoutResponse;
 use flipbox\saml\core\services\Metadata;
 use flipbox\saml\core\services\Session;
 use flipbox\saml\idp\models\Settings;
@@ -15,8 +16,6 @@ use flipbox\saml\idp\records\ProviderIdentityRecord;
 use flipbox\saml\idp\records\ProviderRecord;
 use flipbox\saml\idp\Saml;
 use flipbox\saml\idp\services\messages\AuthnRequest;
-use flipbox\saml\core\services\messages\LogoutRequest;
-use flipbox\saml\core\services\messages\LogoutResponse;
 use flipbox\saml\idp\services\messages\ResponseAssertion;
 use flipbox\saml\idp\services\Provider;
 use flipbox\saml\idp\services\ProviderIdentity;
@@ -30,7 +29,7 @@ class PluginTest extends Unit
      */
     private $module;
 
-    const PLUGIN_HANDLE = 'saml-idp';
+    public const PLUGIN_HANDLE = 'saml-idp';
 
     /**
      * @SuppressWarnings(PHPMD.CamelCaseMethodName)
@@ -52,7 +51,6 @@ class PluginTest extends Unit
             AbstractPlugin::class,
             $this->module
         );
-
     }
 
     public function testCraftPluginMethods()
@@ -71,7 +69,6 @@ class PluginTest extends Unit
             SettingsInterface::class,
             $this->module->createSettingsModel()
         );
-
     }
 
     public function testPluginType()
@@ -95,7 +92,10 @@ class PluginTest extends Unit
 
     public function testEnsurePlugin()
     {
-        $mock = $this->getMockForTrait(SamlPluginEnsured::class);
+        // getMockForTrait() was removed in PHPUnit 11
+        $mock = new class() {
+            use SamlPluginEnsured;
+        };
         $samlPlugin = $mock->getPlugin();
         $this->assertEquals($this->module, $samlPlugin);
 
@@ -129,24 +129,22 @@ class PluginTest extends Unit
             \Psr\Log\LoggerInterface::class,
             $container->getLogger()
         );
-
     }
 
     public function testProviderRecordGetter()
     {
         $providerClass = $this->module->getProviderRecordClass();
-        $provider = new $providerClass;
+        $provider = new $providerClass();
         $this->assertInstanceOf(
             ProviderRecord::class,
             $provider
         );
-
     }
 
     public function testProviderIdentityRecordGetter()
     {
         $providerIdClass = $this->module->getProviderIdentityRecordClass();
-        $providerId = new $providerIdClass;
+        $providerId = new $providerIdClass();
         $this->assertInstanceOf(
             ProviderIdentityRecord::class,
             $providerId

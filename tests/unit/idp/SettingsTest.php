@@ -3,7 +3,6 @@
 
 namespace tests\unit\idp;
 
-
 use Codeception\Test\Unit;
 use flipbox\saml\idp\Saml;
 
