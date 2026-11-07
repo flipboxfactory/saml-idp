@@ -12,7 +12,7 @@ class LoginController extends GeneralController
 {
     public const TEMPLATE_INDEX = DIRECTORY_SEPARATOR . '_cp';
 
-    public $allowAnonymous = [
+    public array|bool|int $allowAnonymous = [
         'index',
     ];
 
