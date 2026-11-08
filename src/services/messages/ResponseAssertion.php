@@ -18,6 +18,7 @@ use SAML2\Response as ResponseMessage;
 use SAML2\XML\saml\NameID;
 use SAML2\XML\saml\SubjectConfirmation;
 use SAML2\XML\saml\SubjectConfirmationData;
+use yii\base\InvalidConfigException;
 
 class ResponseAssertion extends Component
 {
@@ -276,7 +277,7 @@ class ResponseAssertion extends Component
 
         // Check the provider first
         $attributeMap =
-            $serviceProvider->hasMapping() ? $serviceProvider->getMapping() : $settings->responseAttributeMap;
+            $serviceProvider->hasMapping() ? $serviceProvider->getMapping() : $this->defaultAttributeMap($settings);
 
         $attributes = [];
         foreach ($attributeMap as $map) {
@@ -296,6 +297,33 @@ class ResponseAssertion extends Component
 
         Saml::debug(json_encode($attributes));
         $assertion->setAttributes($attributes);
+    }
+
+    /**
+     * The `responseAttributeMap` setting as mapping rows (the format the control panel saves per provider).
+     * Accepts `'Attribute Name' => 'craftProperty'` pairs and rows with `attributeName` plus `craftProperty`
+     * or `templateOverride`.
+     *
+     * @return array<int, array<string, mixed>>
+     * @throws InvalidConfigException
+     */
+    protected function defaultAttributeMap(Settings $settings): array
+    {
+        $rows = [];
+        foreach ($settings->responseAttributeMap as $attributeName => $value) {
+            if (is_string($value)) {
+                $rows[] = ['attributeName' => (string)$attributeName, 'craftProperty' => $value];
+            } elseif (is_array($value) && isset($value['attributeName'])) {
+                $rows[] = $value;
+            } else {
+                throw new InvalidConfigException(sprintf(
+                    'responseAttributeMap entry "%s" must be a Craft user property name or a mapping row.',
+                    $attributeName
+                ));
+            }
+        }
+
+        return $rows;
     }
 
     /**

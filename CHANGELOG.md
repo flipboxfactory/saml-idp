@@ -1,5 +1,10 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## Unreleased
+
+### Fixed
+- Logging in to a service provider without its own attribute mapping (for example, one created outside the control panel) failed with a PHP error instead of releasing the default `responseAttributeMap`. That setting now accepts `'Attribute Name' => 'craftProperty'` pairs, as documented, as well as mapping rows, and rejects other values with a configuration error.
+
 ## 5.0.11 2026-11-07
 
 ### Security

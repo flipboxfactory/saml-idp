@@ -9,6 +9,7 @@ use flipbox\saml\idp\tests\unit\coverage\IdpFixtures;
 use SAML2\Assertion;
 use SAML2\Constants;
 use SAML2\EncryptedAssertion;
+use yii\base\InvalidConfigException;
 
 class ResponseAssertionTest extends Unit
 {
@@ -170,6 +171,65 @@ class ResponseAssertionTest extends Unit
         $this->assertSame(['jane@example.com'], array_values($attributes['att1']));
         $this->assertSame(['Jane'], array_values($attributes['att2']));
         $this->assertSame(['Doe'], array_values($attributes['att3']));
+    }
+
+    public function testDefaultAttributeMapIsReleasedWhenTheProviderHasNoMapping(): void
+    {
+        // e.g. a provider record created outside the control panel
+        $sp = $this->serviceProvider(['mapping' => null]);
+
+        $response = $this->module->getResponse()->create($this->user(), $this->identityProvider(), $sp, $this->module->getSettings());
+        $attributes = $this->roundTrip($response)->getAssertions()[0]->getAttributes();
+
+        $this->assertSame(['Email', 'FirstName', 'LastName'], array_keys($attributes));
+        $this->assertSame(['jane@example.com'], array_values($attributes['Email']));
+        $this->assertSame(['Jane'], array_values($attributes['FirstName']));
+        $this->assertSame(['Doe'], array_values($attributes['LastName']));
+    }
+
+    public function testConfiguredAttributeMapAcceptsPairsAndRows(): void
+    {
+        $settings = clone $this->module->getSettings();
+        $settings->responseAttributeMap = [
+            'mail' => 'email',
+            ['attributeName' => 'displayName', 'templateOverride' => '{firstName} {lastName}'],
+        ];
+
+        $response = $this->module->getResponse()->create(
+            $this->user(),
+            $this->identityProvider(),
+            $this->serviceProvider(['mapping' => null]),
+            $settings
+        );
+        $attributes = $this->roundTrip($response)->getAssertions()[0]->getAttributes();
+
+        $this->assertSame(['mail', 'displayName'], array_keys($attributes));
+        $this->assertSame(['jane@example.com'], array_values($attributes['mail']));
+        $this->assertSame(['Jane Doe'], array_values($attributes['displayName']));
+    }
+
+    public function testEmptyProviderMappingReleasesNoAttributes(): void
+    {
+        // Saved from the control panel with no rows: the default map must not apply
+        $sp = $this->serviceProvider(['mapping' => '[]']);
+
+        $response = $this->module->getResponse()->create($this->user(), $this->identityProvider(), $sp, $this->module->getSettings());
+
+        $this->assertSame([], $this->roundTrip($response)->getAssertions()[0]->getAttributes());
+    }
+
+    public function testInvalidAttributeMapEntryIsRejected(): void
+    {
+        $settings = clone $this->module->getSettings();
+        $settings->responseAttributeMap = ['Email' => fn() => 'jane@example.com'];
+
+        $this->expectException(InvalidConfigException::class);
+        $this->module->getResponse()->create(
+            $this->user(),
+            $this->identityProvider(),
+            $this->serviceProvider(['mapping' => null]),
+            $settings
+        );
     }
 
     public function testDateAttributesAreIso8601(): void

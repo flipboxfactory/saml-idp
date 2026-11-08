@@ -41,65 +41,36 @@ class Settings extends AbstractSettings implements SettingsInterface
     public $messageNotOnOrAfter = '+10 MINUTES';
 
     /**
-     * Key Value store that maps the Response name (the array key) with
-     * the user property.
+     * The attributes released to service providers that don't have their own mapping. Mappings saved
+     * on a provider's Configure tab take precedence, even when they're empty.
      *
-     * Simple mapping works by matching the Response name in the array with the user's
-     * property, and setting what is found in the Response's value to the user element.
-     *
-     * Take the following example:
-     * Here is my responseAttributeMap from the config/saml-sp.php
-     *
-     * @see ClaimTypes
+     * Each key is the attribute name in the Assertion, and each value the Craft user property it's taken
+     * from. For example, in config/saml-idp.php:
      *
      * ```php
-     * ...
      * 'responseAttributeMap' => [
      *      ClaimTypes::EMAIL_ADDRESS => 'email',
-     *      'firstName' => 'firstName',
+     *      'FirstName' => 'firstName',
      * ],
-     * ...
      * ```
      *
-     * Here is a snippet from the Saml XML Response message:
+     * releases:
+     *
      * ```xml
-     * <Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress">
-     *    <AttributeValue>damien@example.com</AttributeValue>
-     * </Attribute>
-     * <Attribute Name="firstName">
-     *    <AttributeValue>Damien</AttributeValue>
-     * </Attribute>
+     * <saml:Attribute Name="http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress">
+     *    <saml:AttributeValue>jane@example.com</saml:AttributeValue>
+     * </saml:Attribute>
+     * <saml:Attribute Name="FirstName">
+     *    <saml:AttributeValue>Jane</saml:AttributeValue>
+     * </saml:Attribute>
      * ```
      *
-     * The above would result in the following mapping:
-     * ```php
-     * // @var $user \craft\elements\User
-     * $user->firstName = 'Damien';
-     * $user->email = 'damien@example.com';
-     * ```
+     * A value can also be a mapping row, as the control panel saves them, to use a template:
+     * `['attributeName' => 'Department', 'templateOverride' => '{department.one().title}']`.
      *
-     * With more complex user fields, you can set the array value to a callable. For
-     * more on callables http://php.net/manual/en/language.types.callable.php.
-     *
-     * Here is my responseAttributeMap with a callable from the config/saml-sp.php
-     * ```php
-     * 'responseAttributeMap' => [
-     *      ClaimTypes::EMAIL_ADDRESS => function(\craft\elements\User $user, array $attribute){
-     *         // $attribute is key/name value (string/array) pair
-     *
-     *         // Could be an array
-     *         $attributeValue = $attribute['Email'];
-     *         if(is_array($attributeValue)){
-     *             $attributeValue = $attributeValue[0];
-     *         }
-     *
-     *         $user->email = $attribute['Email'];
-     *      }
-     * ],
-     * ```
+     * @see ClaimTypes
      * @var array
      */
-
     public $responseAttributeMap = [
         // SP Response Attribute Name => Craft Property
         'Email' => 'email',
