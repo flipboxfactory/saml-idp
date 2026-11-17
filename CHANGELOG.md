@@ -1,5 +1,10 @@
 # Release Notes for Craft CMS Plugin SAML IDP
 
+## Unreleased
+
+### Fixed
+- Saving the plugin settings page no longer removes the plugin's other settings from project config on Craft 5.8.22+. Settings such as `wantsAuthnRequestsSigned` and `responseAttributeMap` went back to their defaults when the page was saved ([saml-sp#262](https://github.com/flipboxfactory/saml-sp/issues/262)). Requires `flipboxfactory/saml-core` ^5.0.13.
+
 ## 5.0.11 2026-11-07
 
 ### Security
