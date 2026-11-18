@@ -5,6 +5,11 @@
 ### Fixed
 - Logging in to a service provider without its own attribute mapping (for example, one created outside the control panel) failed with a PHP error instead of releasing the default `responseAttributeMap`. That setting now accepts `'Attribute Name' => 'craftProperty'` pairs, as documented, as well as mapping rows, and rejects other values with a configuration error.
 
+## 5.0.12 2026-11-18
+
+### Fixed
+- Saving the plugin settings page no longer removes the plugin's other settings from project config on Craft 5.8.22+. Settings such as `wantsAuthnRequestsSigned` and `responseAttributeMap` went back to their defaults when the page was saved ([saml-sp#262](https://github.com/flipboxfactory/saml-sp/issues/262)). Requires `flipboxfactory/saml-core` ^5.0.13.
+
 ## 5.0.11 2026-11-07
 
 ### Security
